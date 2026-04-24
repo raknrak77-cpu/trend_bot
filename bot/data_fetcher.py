@@ -1,21 +1,27 @@
 import yfinance as yf
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 import json
 import os
-import numpy as np
-from sklearn.linear_model import LinearRegression
+import warnings
+warnings.filterwarnings('ignore')
 
-print("=" * 60)
-print("🚀 TREND BOT - Yahoo Finance + Tahmin Modeli")
-print("=" * 60)
+# TensorFlow / LSTM kütüphaneleri
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
 
-# Ana çıktı klasörü (geçici, sonra Actions tarafından tarihli klasöre taşınacak)
+print("=" * 70)
+print("🚀 TREND BOT - LSTM MODEL (15 Coin | 14 Saat Tahmin)")
+print("=" * 70)
+
 OUTPUT_DIR = "veri"
 
-# Eğer Actions'tan timestamp geldiyse kullan, yoksa şimdiki zaman
-RUN_TIMESTAMP = os.environ.get('RUN_TIMESTAMP', datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-
+# ============================================================
+# 15 COIN (Tam liste)
+# ============================================================
 COINS = {
     "bitcoin": "BTC-USD",
     "ethereum": "ETH-USD",
@@ -23,21 +29,31 @@ COINS = {
     "solana": "SOL-USD",
     "cardano": "ADA-USD",
     "ripple": "XRP-USD",
-    "dogecoin": "DOGE-USD"
+    "dogecoin": "DOGE-USD",
+    "polkadot": "DOT-USD",
+    "avalanche": "AVAX-USD",
+    "shiba_inu": "SHIB-USD",
+    "toncoin": "TON-USD",
+    "chainlink": "LINK-USD",
+    "uniswap": "UNI-USD",
+    "litecoin": "LTC-USD",
+    "aptos": "APT-USD"
 }
-LOOKBACK_HOURS = 2000
+
+LOOKBACK_HOURS = 3000      # 125 gün geçmiş
+SEQUENCE_LENGTH = 168      # 1 haftalık sequence (168 saat)
+TARGET_HOURS = [1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 32, 36, 48, 72]  # 14 hedef
 
 # ============================================================
 # 1. VERİ ÇEKME
 # ============================================================
 
-def fetch_yahoo_data(symbol="BTC-USD", hours=2000):
-    """Yahoo Finance'ten 1 saatlik veri çek"""
+def fetch_yahoo_data(symbol="BTC-USD", hours=3000):
+    """Yahoo Finance'ten veri çek"""
     print(f"   📡 {symbol} çekiliyor...")
-    
     try:
         ticker = yf.Ticker(symbol)
-        days = hours / 24 + 1
+        days = hours / 24 + 7
         end = datetime.now()
         start = end - timedelta(days=days)
         
@@ -57,10 +73,8 @@ def fetch_yahoo_data(symbol="BTC-USD", hours=2000):
             'Volume': 'volume'
         })
         
-        # Zaman dilimini temizle (Excel hatası için)
         df['timestamp'] = df['timestamp'].dt.tz_localize(None)
-        
-        df = df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+        df = df.tail(hours)
         print(f"   ✅ {len(df)} saatlik veri alındı")
         return df
     except Exception as e:
@@ -69,22 +83,20 @@ def fetch_yahoo_data(symbol="BTC-USD", hours=2000):
 
 
 # ============================================================
-# 2. TEKNİK GÖSTERGELER (Özellik Mühendisliği)
+# 2. ÖZELLİK MÜHENDİSLİĞİ
 # ============================================================
 
-def add_indicators(df):
-    """Teknik göstergeler ekle (RSI, MACD, SMA, ATR, trend)"""
-    if len(df) < 24:
+def add_features_for_lstm(df):
+    """Teknik göstergeler ekle"""
+    if len(df) < SEQUENCE_LENGTH + 100:
         return df
     
     # Hareketli ortalamalar
-    df['sma_24'] = df['close'].rolling(24).mean()      # 1 gün
-    df['sma_72'] = df['close'].rolling(72).mean()      # 3 gün
-    df['sma_168'] = df['close'].rolling(168).mean()    # 7 gün
-    df['ema_12'] = df['close'].ewm(span=12, adjust=False).mean()
-    df['ema_24'] = df['close'].ewm(span=24, adjust=False).mean()
+    df['sma_24'] = df['close'].rolling(24).mean()
+    df['sma_72'] = df['close'].rolling(72).mean()
+    df['sma_168'] = df['close'].rolling(168).mean()
     
-    # RSI (14 saat)
+    # RSI (14)
     delta = df['close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
@@ -92,256 +104,211 @@ def add_indicators(df):
     df['rsi_14'] = 100 - (100 / (1 + rs))
     
     # MACD
+    df['ema_12'] = df['close'].ewm(span=12, adjust=False).mean()
+    df['ema_24'] = df['close'].ewm(span=24, adjust=False).mean()
     df['macd'] = df['ema_12'] - df['ema_24']
     df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
     df['macd_histogram'] = df['macd'] - df['macd_signal']
     
-    # ATR (Average True Range) - volatilite
+    # ATR (volatilite)
     df['high_low'] = df['high'] - df['low']
     df['high_close'] = abs(df['high'] - df['close'].shift())
     df['low_close'] = abs(df['low'] - df['close'].shift())
     df['true_range'] = df[['high_low', 'high_close', 'low_close']].max(axis=1)
     df['atr_14'] = df['true_range'].rolling(window=14).mean()
     
-    # Saatlik getiri
-    df['hourly_return'] = df['close'].pct_change(1) * 100
-    
     # Hacim değişimi
     df['volume_change'] = df['volume'].pct_change(1) * 100
     
-    # Trend etiketi
-    def get_trend(row):
-        if pd.isna(row['sma_24']):
-            return "YETERSİZ"
-        if row['close'] > row['sma_24'] and row['close'] > row['sma_168']:
-            return "📈 GÜÇLÜ YÜKSELİŞ"
-        elif row['close'] > row['sma_24']:
-            return "📈 ZAYIF YÜKSELİŞ"
-        elif row['close'] < row['sma_24'] and row['close'] < row['sma_168']:
-            return "📉 GÜÇLÜ DÜŞÜŞ"
-        elif row['close'] < row['sma_24']:
-            return "📉 ZAYIF DÜŞÜŞ"
-        else:
-            return "➡️ YATAY"
+    # Momentum (son 12 saat)
+    df['momentum_12'] = df['close'].pct_change(12) * 100
     
-    df['trend'] = df.apply(get_trend, axis=1)
+    # Bollinger Bantları
+    df['bb_middle'] = df['close'].rolling(20).mean()
+    bb_std = df['close'].rolling(20).std()
+    df['bb_upper'] = df['bb_middle'] + (bb_std * 2)
+    df['bb_lower'] = df['bb_middle'] - (bb_std * 2)
+    df['bb_position'] = (df['close'] - df['bb_lower']) / (df['bb_upper'] - df['bb_lower'])
     
-    # RSI durumu
-    def get_rsi_status(rsi):
-        if pd.isna(rsi):
-            return "VERİ YOK"
-        elif rsi > 70:
-            return "🔴 AŞIRI ALIM"
-        elif rsi < 30:
-            return "🟢 AŞIRI SATIM"
-        else:
-            return "⚪ NÖTR"
-    
-    df['rsi_status'] = df['rsi_14'].apply(get_rsi_status)
+    # Saatlik getiri
+    df['hourly_return'] = df['close'].pct_change(1) * 100
     
     return df
 
 
 # ============================================================
-# 3. GELECEK TAHMİNİ (Linear Regression Model)
+# 3. LSTM MODELİ
 # ============================================================
 
-def train_and_predict(df, coin_name):
-    """Geçmiş veriyi kullanarak gelecek 1-72 saat için tahmin yap"""
-    
-    if len(df) < 100:
-        print(f"      ⚠️ {coin_name} için yetersiz veri ({len(df)} satır)")
-        return None
-    
-    # Kullanılacak özellikler
-    features = ['rsi_14', 'macd', 'macd_signal', 'sma_24', 'sma_168', 'hourly_return', 'atr_14']
-    
-    # Hedef saatler
-    target_hours = [1, 4, 12, 24, 48, 72]
-    
-    predictions = {}
-    
-    for hour in target_hours:
-        # Hedef sütunu oluştur: 'hour' saat sonraki getiri
-        df[f'target_{hour}h'] = df['close'].shift(-hour) / df['close'] - 1
-        
-        # NaN'leri temizle
-        df_clean = df[features + [f'target_{hour}h']].dropna()
-        
-        if len(df_clean) < 50:
-            continue
-        
-        # Model eğit
-        X = df_clean[features].values
-        y = df_clean[f'target_{hour}h'].values
-        
-        model = LinearRegression()
-        model.fit(X, y)
-        
-        # Son satır ile tahmin yap
-        son_veri = df[features].iloc[-1].values.reshape(1, -1)
-        tahmin = float(model.predict(son_veri)[0])
-        
-        # Son 10 tahmin ile yön doğruluğu hesapla
-        y_pred = model.predict(X[-10:])
-        y_true = y[-10:]
-        yon_dogruluk = np.mean((y_pred > 0) == (y_true > 0)) * 100
-        
-        predictions[f"{hour}h"] = {
-            "expected_return_pct": round(tahmin * 100, 2),
-            "expected_price": round(float(df['close'].iloc[-1]) * (1 + tahmin), 2),
-            "direction": "📈 YÜKSELİŞ" if tahmin > 0 else "📉 DÜŞÜŞ",
-            "confidence_pct": round(min(abs(tahmin * 100) * 2, 85) + 15, 1),
-            "direction_accuracy_10d": round(yon_dogruluk, 1)
-        }
-    
-    return predictions if predictions else None
+def create_lstm_model(input_shape):
+    """LSTM modeli oluştur"""
+    model = Sequential([
+        LSTM(128, return_sequences=True, input_shape=input_shape),
+        Dropout(0.2),
+        LSTM(64, return_sequences=False),
+        Dropout(0.2),
+        Dense(32, activation='relu'),
+        Dense(16, activation='relu'),
+        Dense(1)
+    ])
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    return model
 
+def prepare_sequences(df, features, target_hour):
+    """Sequence hazırla"""
+    df[f'target_{target_hour}h'] = df['close'].shift(-target_hour) / df['close'] - 1
+    data = df[features + [f'target_{target_hour}h']].dropna()
+    
+    if len(data) < SEQUENCE_LENGTH + 50:
+        return None, None, None
+    
+    scaler_X = MinMaxScaler()
+    scaler_y = MinMaxScaler()
+    
+    X_scaled = scaler_X.fit_transform(data[features].values)
+    y_scaled = scaler_y.fit_transform(data[[f'target_{target_hour}h']].values)
+    
+    X, y = [], []
+    for i in range(len(X_scaled) - SEQUENCE_LENGTH):
+        X.append(X_scaled[i:i + SEQUENCE_LENGTH])
+        y.append(y_scaled[i + SEQUENCE_LENGTH])
+    
+    return np.array(X), np.array(y), (scaler_X, scaler_y)
 
-# ============================================================
-# 4. KAYDETME VE RAPORLAMA
-# ============================================================
-
-def save_outputs(df, coin_name, symbol, output_dir):
-    """Excel, JSON ve tahminleri kaydet"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def train_and_predict_lstm(df, coin_name, target_hour):
+    """LSTM eğit ve tahmin yap"""
+    features = ['close', 'volume', 'rsi_14', 'macd', 'atr_14', 
+                'hourly_return', 'bb_position', 'momentum_12']
     
-    # Teknik göstergeleri ekle
-    df = add_indicators(df)
+    X, y, scalers = prepare_sequences(df, features, target_hour)
     
-    # Excel (tüm veri)
-    excel_name = f"{output_dir}/{coin_name}_1h.xlsx"
-    df.to_excel(excel_name, index=False)
+    if X is None or len(X) < 100:
+        return None, None
     
-    # Tahmin yap
-    print(f"   🔮 {coin_name} için gelecek tahmini yapılıyor...")
-    predictions = train_and_predict(df, coin_name)
+    # Train/validation split
+    split = int(len(X) * 0.8)
+    X_train, X_val = X[:split], X[split:]
+    y_train, y_val = y[:split], y[split:]
     
-    # JSON özet (son durum + tahminler)
-    son = df.iloc[-1]
-    summary = {
-        "coin": coin_name,
-        "symbol": symbol,
-        "timestamp": datetime.now().isoformat(),
-        "last_price": float(son['close']),
-        "trend": son['trend'],
-        "rsi_14": float(son['rsi_14']) if pd.notna(son['rsi_14']) else None,
-        "rsi_status": son['rsi_status'],
-        "macd": float(son['macd']) if pd.notna(son['macd']) else None,
-        "macd_signal": float(son['macd_signal']) if pd.notna(son['macd_signal']) else None,
-        "atr_14": float(son['atr_14']) if pd.notna(son['atr_14']) else None,
-        "sma_24": float(son['sma_24']) if pd.notna(son['sma_24']) else None,
-        "sma_168": float(son['sma_168']) if pd.notna(son['sma_168']) else None,
-        "hourly_return": float(son['hourly_return']) if pd.notna(son['hourly_return']) else None,
-        "volume_24h": float(df.tail(24)['volume'].sum()),
-        "data_points": len(df),
-        "predictions": predictions
-    }
+    # Model eğit
+    model = create_lstm_model((SEQUENCE_LENGTH, len(features)))
+    early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
     
-    json_name = f"{output_dir}/{coin_name}_1h.json"
-    with open(json_name, 'w') as f:
-        json.dump(summary, f, indent=2)
+    model.fit(X_train, y_train, 
+              validation_data=(X_val, y_val),
+              epochs=50, 
+              batch_size=32,
+              callbacks=[early_stop],
+              verbose=0)
     
-    return excel_name, json_name, predictions
+    # Tahmin
+    last_sequence = X[-1:]
+    prediction_scaled = model.predict(last_sequence, verbose=0)
+    prediction = float(scalers[1].inverse_transform(prediction_scaled)[0, 0])
+    
+    # Validation doğruluğu
+    y_val_pred = model.predict(X_val, verbose=0)
+    y_val_actual = scalers[1].inverse_transform(y_val)
+    y_val_pred_actual = scalers[1].inverse_transform(y_val_pred)
+    
+    direction_accuracy = np.mean(
+        ((y_val_pred_actual > 0) == (y_val_actual > 0)).flatten()
+    ) * 100
+    
+    return prediction, direction_accuracy
 
 
 # ============================================================
-# 5. ANA FONKSİYON
+# 4. ANA FONKSİYON
 # ============================================================
 
 def main():
-    # Geçici çıktı klasörü
-    temp_dir = OUTPUT_DIR
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
     
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
+    print(f"📋 Toplam coin: {len(COINS)}")
+    print(f"⏰ Geçmiş: {LOOKBACK_HOURS} saat ({LOOKBACK_HOURS//24} gün)")
+    print(f"🎯 Hedef saatler: {len(TARGET_HOURS)} adet ({TARGET_HOURS[0]}-{TARGET_HOURS[-1]}h)")
+    print(f"🧠 LSTM sequence: {SEQUENCE_LENGTH} saat (1 hafta)")
+    print("=" * 70)
     
-    print(f"📋 Coin sayısı: {len(COINS)}")
-    print(f"⏰ Geriye dönük: {LOOKBACK_HOURS} saat ({LOOKBACK_HOURS//24} gün)")
-    print(f"🕐 Çalışma ID: {RUN_TIMESTAMP}")
-    print("-" * 60)
-    
-    results = []
     all_predictions = []
+    successful_coins = 0
     
     for coin_name, symbol in COINS.items():
         print(f"\n🪙 {coin_name.upper()} ({symbol})")
         df = fetch_yahoo_data(symbol, LOOKBACK_HOURS)
         
-        if df is not None and len(df) > 0:
-            excel_file, json_file, predictions = save_outputs(df, coin_name, symbol, temp_dir)
+        if df is None or len(df) < SEQUENCE_LENGTH:
+            print(f"   ❌ Yetersiz veri, atlanıyor")
+            continue
+        
+        df = add_features_for_lstm(df)
+        df = df.dropna()
+        
+        predictions = {}
+        
+        for target_hour in TARGET_HOURS:
+            print(f"      🔮 {target_hour}h LSTM eğitiliyor...", end=" ")
+            pred, accuracy = train_and_predict_lstm(df, coin_name, target_hour)
             
-            results.append({
+            if pred is not None:
+                predictions[f"{target_hour}h"] = {
+                    "expected_return_pct": round(pred * 100, 2),
+                    "expected_price": round(float(df['close'].iloc[-1]) * (1 + pred), 2),
+                    "direction": "📈 YUKARI" if pred > 0 else "📉 ASAGI",
+                    "model_accuracy": round(accuracy, 1)
+                }
+                print(f"✅ %{round(pred*100,2)} (doğruluk: %{round(accuracy,1)})")
+            else:
+                print(f"❌ Yetersiz veri")
+        
+        if predictions:
+            all_predictions.append({
                 "coin": coin_name,
-                "last_price": float(df.iloc[-1]['close']),
-                "trend": df.iloc[-1]['trend'] if len(df) > 0 else "VERİ YOK",
-                "data_points": len(df)
+                "last_price": float(df['close'].iloc[-1]),
+                "timestamp": datetime.now().isoformat(),
+                "predictions": predictions
             })
+            successful_coins += 1
             
-            if predictions:
-                all_predictions.append({
-                    "coin": coin_name,
-                    "last_price": float(df.iloc[-1]['close']),
-                    "predictions": predictions
-                })
-            
-            print(f"   ✅ Excel: {excel_file}")
-            print(f"   📈 Son fiyat: ${df.iloc[-1]['close']:,.2f}")
-            print(f"   📊 Trend: {df.iloc[-1]['trend']}")
-            
-            # Tahminleri ekrana yazdır
-            if predictions:
-                print(f"   🔮 Tahminler:")
-                for h, pred in predictions.items():
-                    yon = "🟢" if pred['direction'] == "📈 YÜKSELİŞ" else "🔴"
-                    print(f"      {h}: {yon} {pred['direction']} %{pred['expected_return_pct']} "
-                          f"(güven: %{pred['confidence_pct']})")
-        else:
-            print(f"   ❌ {coin_name} için veri alınamadı")
+            # Özet
+            print(f"\n   📈 Son fiyat: ${df['close'].iloc[-1]:,.2f}")
+            print(f"   📊 Başarılı tahmin: {len(predictions)}/{len(TARGET_HOURS)} saat")
     
-    # Master rapor (tüm coinlerin son durumu)
-    if results:
-        master_df = pd.DataFrame(results)
-        master_excel = f"{temp_dir}/master_rapor.xlsx"
-        master_df.to_excel(master_excel, index=False)
-        
-        with open(f"{temp_dir}/master_rapor.json", 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        print(f"\n📊 Master rapor: {master_excel}")
-    
-    # Tahminler master raporu
+    # SONUÇLARI KAYDET
     if all_predictions:
-        pred_rows = []
+        # JSON
+        json_path = f"{OUTPUT_DIR}/tahminler.json"
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(all_predictions, f, indent=2, ensure_ascii=False)
+        
+        # Excel (sadece tahminler)
+        rows = []
         for p in all_predictions:
             for h, pred in p['predictions'].items():
-                pred_rows.append({
+                rows.append({
                     'coin': p['coin'],
-                    'son_fiyat': p['last_price'],
+                    'son_fiyat_usd': p['last_price'],
                     'tahmin_saati': h,
                     'beklenen_getiri_yuzde': pred['expected_return_pct'],
-                    'beklenen_fiyat': pred['expected_price'],
+                    'beklenen_fiyat_usd': pred['expected_price'],
                     'yon': pred['direction'],
-                    'guven_yuzde': pred['confidence_pct'],
-                    'yon_dogruluk_10d': pred.get('direction_accuracy_10d', None)
+                    'model_doğruluk_yuzde': pred['model_accuracy']
                 })
         
-        pred_df = pd.DataFrame(pred_rows)
-        pred_excel = f"{temp_dir}/tahminler.xlsx"
-        pred_df.to_excel(pred_excel, index=False)
+        pred_df = pd.DataFrame(rows)
+        excel_path = f"{OUTPUT_DIR}/tahminler.xlsx"
+        pred_df.to_excel(excel_path, index=False)
         
-        pred_json = f"{temp_dir}/tahminler.json"
-        with open(pred_json, 'w') as f:
-            json.dump(all_predictions, f, indent=2)
-        
-        print(f"🔮 Tahminler raporu: {pred_excel}")
-    
-    print("\n" + "=" * 60)
-    print(f"✅ {len(results)}/{len(COINS)} coin başarılı")
-    print(f"📁 Tüm çıktılar: {temp_dir}/")
-    print("=" * 60)
-
+        print("\n" + "=" * 70)
+        print("🎉 LSTM MODEL TAMAMLANDI!")
+        print(f"✅ Başarılı coin: {successful_coins}/{len(COINS)}")
+        print(f"📁 JSON: {json_path}")
+        print(f"📊 Excel: {excel_path}")
+        print("=" * 70)
+    else:
+        print("\n❌ Hiçbir tahmin yapılamadı!")
 
 if __name__ == "__main__":
     main()
