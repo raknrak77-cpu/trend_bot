@@ -18,16 +18,38 @@ jobs:
       
       - name: Kütüphaneleri yükle
         run: |
-          pip install yfinance pandas openpyxl
+          pip install yfinance pandas openpyxl scikit-learn
+      
+      - name: Tarih/saat değişkenini oluştur
+        id: datetime
+        run: |
+          echo "TIMESTAMP=$(date -u '+%Y%m%d_%H%M%S')" >> $GITHUB_ENV
+          echo "FOLDER_NAME=$(date -u '+%Y-%m-%d_%H-%M-%S')" >> $GITHUB_ENV
       
       - name: Botu çalıştır
         run: |
           cd bot
           python data_fetcher.py
+        env:
+          RUN_TIMESTAMP: ${{ env.FOLDER_NAME }}
       
-      - name: Çıktıları yükle
+      - name: Çıktıları tarihli klasöre taşı
+        run: |
+          mkdir -p "bot/veri/${{ env.FOLDER_NAME }}"
+          mv bot/veri/*.xlsx bot/veri/*.json "bot/veri/${{ env.FOLDER_NAME }}/" 2>/dev/null || true
+          echo "✅ Çıktılar bot/veri/${{ env.FOLDER_NAME }}/ klasörüne taşındı"
+      
+      - name: Repoya kaydet
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add bot/veri/
+          git commit -m "🤖 Bot çıktıları - ${{ env.FOLDER_NAME }}" || echo "Değişiklik yok"
+          git push
+      
+      - name: Artifact olarak yükle
         uses: actions/upload-artifact@v4
         with:
-          name: veri-cikti
-          path: bot/veri/
+          name: veri-cikti-${{ env.TIMESTAMP }}
+          path: bot/veri/${{ env.FOLDER_NAME }}/
           retention-days: 30
