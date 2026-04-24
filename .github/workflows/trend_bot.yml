@@ -1,37 +1,53 @@
-name: Trend Bot - Saatlik Veri Analizi
+name: Trend Bot - Analiz
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Repoyu indir
+      - name: 📥 Repoyu indir
         uses: actions/checkout@v4
       
-      - name: Python kurulumu
+      - name: 🐍 Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Kütüphaneleri yükle
+      - name: 📦 Kütüphaneleri yükle
         run: |
           pip install requests pandas openpyxl
       
-      - name: Botu çalıştır
+      - name: 🔍 Dizin yapısını göster (öncesi)
+        run: |
+          echo "=== Çalışma dizini ==="
+          pwd
+          ls -la
+          echo "=== bot klasörü ==="
+          ls -la bot/ 2>/dev/null || echo "bot klasörü yok"
+      
+      - name: 🤖 Botu çalıştır
         run: |
           cd bot
           python data_fetcher.py
+          echo "=== Bot çalıştı, çıktılar ==="
+          ls -la *.xlsx *.json 2>/dev/null || echo "Hiç çıktı dosyası bulunamadı"
       
-      - name: Çıktıları yükle
+      - name: 📤 Tüm çıktıları yükle
         uses: actions/upload-artifact@v4
         with:
-          name: trend-bot-analiz
+          name: trend-bot-ciktilari
           path: |
-            bot/analiz_ciktisi/*.xlsx
-            bot/analiz_ciktisi/*.json
+            bot/*.xlsx
+            bot/*.json
+            bot/*.log
           retention-days: 30
+      
+      - name: 📊 Çıktı listesi (sonrası)
+        run: |
+          echo "=== bot klasöründeki tüm dosyalar ==="
+          ls -la bot/
