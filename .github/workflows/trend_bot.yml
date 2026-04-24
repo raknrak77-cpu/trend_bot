@@ -1,4 +1,4 @@
-name: Trend Bot - LSTM (15 Coin)
+name: Trend Bot - LSTM
 
 on:
   workflow_dispatch:
@@ -8,8 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Repoyu indir
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
       - name: Python kurulumu
         uses: actions/setup-python@v5
@@ -20,17 +19,15 @@ jobs:
         run: |
           pip install yfinance pandas numpy openpyxl scikit-learn tensorflow
       
-      - name: Botu çalıştır (LSTM - 15 Coin)
+      - name: Botu çalıştır
         run: |
           cd bot
-          python data_fetcher.py
+          python main.py
       
-      - name: Çıktıları repoya kaydet
+      - name: Çıktıları kaydet
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add veri/
-          git commit -m "🤖 LSTM tahminleri (15 coin) - $(date -u '+%Y-%m-%d %H:%M')" || echo "Değişiklik yok"
+          git commit -m "🤖 LSTM tahminleri - $(date -u '+%Y-%m-%d')" || echo "Değişiklik yok"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
