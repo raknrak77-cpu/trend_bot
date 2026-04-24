@@ -8,67 +8,136 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # 1. REPOYU İNDİR
       - name: 📥 Repoyu indir
         uses: actions/checkout@v4
       
+      # 2. PYTHON KUR
       - name: 🐍 Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
+      # 3. KÜTÜPHANELERİ YÜKLE
       - name: 📦 Kütüphaneleri yükle
         run: |
           pip install --upgrade pip
           pip install yfinance pandas numpy openpyxl scikit-learn tensorflow
       
-      - name: 🔍 Dizin kontrolü (debug)
+      # 4. DİZİN KONTROLÜ (DEBUG)
+      - name: 🔍 Dizin kontrolü
         run: |
-          echo "=== Ana dizin ==="
+          echo "=== Çalışma dizini ==="
           pwd
+          echo "=== Ana dizin içeriği ==="
           ls -la
-          echo "=== bot dizini ==="
+          echo "=== bot dizini içeriği ==="
           ls -la bot/ || echo "bot dizini yok!"
           echo "=== Python versiyonu ==="
           python --version
       
-      - name: 🤖 Botu çalıştır (debug mod)
+      # 5. BOTU ÇALIŞTIR (DEBUG MOD)
+      - name: 🤖 Botu çalıştır
         run: |
           cd bot
           python -u main.py 2>&1 | tee bot.log
-        continue-on-error: false
       
+      # 6. ÇIKTILARI KONTROL ET (DEBUG)
       - name: 📊 Çıktı kontrolü
         run: |
-          echo "=== veri klasörü (ana dizin) ==="
-          ls -la veri/ 2>/dev/null || echo "veri klasörü yok"
           echo "=== bot/veri klasörü ==="
-          ls -la bot/veri/ 2>/dev/null || echo "bot/veri klasörü yok"
-          echo "=== bot.log içeriği (son 50 satır) ==="
-          tail -50 bot/bot.log 2>/dev/null || echo "bot.log yok"
+          ls -la bot/veri/ 2>/dev/null || echo "bot/veri yok"
+          echo "=== bot.log son 30 satır ==="
+          tail -30 bot/bot.log 2>/dev/null || echo "bot.log yok"
       
+      # 7. ÇIKTILARI ANA DİZİNE KAYDET (TARİHLİ + LATEST)
       - name: 💾 Çıktıları repoya kaydet
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Çıktılar neredeyse oraya taşı
+          # Tarih ve saat etiketi (UTC)
+          TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
+          
+          # Ana dizinde veri klasörünü oluştur
+          mkdir -p "veri/${TIMESTAMP}"
+          mkdir -p "veri/latest"
+          
+          # Çıktıları varsa taşı/kopyala
           if [ -d "bot/veri" ]; then
-            mkdir -p veri
-            cp -r bot/veri/* veri/ 2>/dev/null || true
+            echo "📁 bot/veri bulundu, kopyalanıyor..."
+            cp -r bot/veri/* "veri/${TIMESTAMP}/" 2>/dev/null || true
+            cp -r bot/veri/* "veri/latest/" 2>/dev/null || true
+            echo "✅ Çıktılar kopyalandı"
+          else
+            echo "⚠️ bot/veri klasörü bulunamadı!"
           fi
           
-          git add veri/ bot/veri/ 2>/dev/null || true
-          git commit -m "🤖 LSTM tahminleri - $(date -u '+%Y-%m-%d %H:%M')" || echo "Değişiklik yok"
+          # Alternatif: bot klasöründe direkt çıktı varsa
+          if [ -f "bot/tahminler.xlsx" ]; then
+            echo "📁 bot/tahminler.xlsx bulundu"
+            cp bot/tahminler.xlsx "veri/${TIMESTAMP}/" 2>/dev/null || true
+            cp bot/tahminler.xlsx "veri/latest/" 2>/dev/null || true
+          fi
+          
+          if [ -f "bot/tahminler.json" ]; then
+            cp bot/tahminler.json "veri/${TIMESTAMP}/" 2>/dev/null || true
+            cp bot/tahminler.json "veri/latest/" 2>/dev/null || true
+          fi
+          
+          # Debug log'u da kaydet
+          if [ -f "bot/bot.log" ]; then
+            cp bot/bot.log "veri/${TIMESTAMP}/" 2>/dev/null || true
+          fi
+          
+          # Git'e ekle ve push et
+          echo "📤 Git'e ekleniyor..."
+          git add veri/
+          git add bot/bot.log 2>/dev/null || true
+          git commit -m "🤖 LSTM tahminleri - ${TIMESTAMP}" || echo "⚠️ Değişiklik yok"
           git push
+          
+          echo "✅ Repo güncellendi"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: 📤 Artifact olarak yükle (debug için)
+      # 8. ARTIFACT OLARAK YÜKLE (YEDEK)
+      - name: 📤 Artifact olarak yükle
         uses: actions/upload-artifact@v4
         with:
-          name: trend-bot-cikti
+          name: trend-bot-cikti-${{ github.run_id }}
           path: |
             bot/veri/
-            veri/
+            bot/tahminler.xlsx
+            bot/tahminler.json
             bot/bot.log
+            veri/
           retention-days: 30
+      
+      # 9. SONUÇ ÖZETİ
+      - name: 📊 Sonuç özeti
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "✅ TREND BOT İŞLEMİ TAMAMLANDI"
+          echo "=========================================="
+          echo "📁 Çıktılar ana dizinde: veri/ klasöründe"
+          echo "   - veri/YYYY-MM-DD_HH-MM-SS/ (tarihli)"
+          echo "   - veri/latest/ (en son çalışma)"
+          echo "=========================================="
+          
+          # Excel varsa içeriğini göster
+          if [ -f "veri/latest/tahminler.xlsx" ]; then
+            echo "📊 En yüksek 5 beklenen getiri:"
+            python -c "
+import pandas as pd
+try:
+    df = pd.read_excel('veri/latest/tahminler.xlsx')
+    df = df.nlargest(5, 'beklenen_getiri_yuzde')
+    for _, r in df.iterrows():
+        print(f\"   {r['coin']:12s} {r['tahmin_saati']:4s}: %{r['beklenen_getiri_yuzde']:6.2f} (güven: %{r.get('guven_yuzde', 0):.1f})\")
+except:
+    print(\"   (Excel okunamadı)\")
+" 2>/dev/null || echo "   (Excel henüz oluşmadı)"
+          fi
+          echo "=========================================="
