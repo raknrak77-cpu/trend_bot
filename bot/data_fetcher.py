@@ -6,71 +6,69 @@ import time
 
 # ============= AYARLAR =============
 COINS = {
-    "bitcoin": "btc-btc",
-    "ethereum": "eth-eth",
-    "binancecoin": "bnb-bnb",
-    "solana": "sol-sol",
-    "cardano": "ada-ada"
+    "bitcoin": "btc-bitcoin",
+    "ethereum": "eth-ethereum",
+    "binancecoin": "bnb-binance-coin",
+    "solana": "sol-solana",
+    "cardano": "ada-cardano"
 }
 LOOKBACK_HOURS = 2400  # 100 gün = 2400 saat
 # ===================================
 
-def fetch_coinpaprika_ohlcv(coin_id="btc-btc", hours=2400):
+def fetch_coinpaprika_ohlcv(coin_id="btc-bitcoin", hours=2400):
     """
     CoinPaprika'dan 1 saatlik OHLCV verisi çeker.
-    Tamamen ücretsiz, API anahtarı gerekmez.
+    Direkt historical OHLCV endpoint'ini kullanır.
     """
-    # CoinPaprika OHLCV endpoint'i
-    # Önce coin'in market bilgilerini alalım
-    market_url = f"https://api.coinpaprika.com/v1/coins/{coin_id}/markets"
-    markets = requests.get(market_url).json()
+    # CoinPaprika historical OHLCV endpoint'i
+    # Doğrudan çalışır, market aramaya gerek yok
+    url = f"https://api.coinpaprika.com/v1/coins/{coin_id}/ohlcv/historical"
     
-    # USDT market'ini bul
-    usdt_market = None
-    for m in markets:
-        if m.get('quote_currency') == 'USD' and m.get('market_url', '').find('binance') > -1:
-            usdt_market = m.get('pair')
-            break
-    
-    if not usdt_market:
-        # Alternatif: ilk USD market'ini al
-        for m in markets:
-            if m.get('quote_currency') == 'USD':
-                usdt_market = m.get('pair')
-                break
-    
-    if not usdt_market:
-        print(f"   ❌ {coin_id} için USD market bulunamadı")
-        return None
-    
-    # OHLCV verisini çek
-    ohlcv_url = f"https://api.coinpaprika.com/v1/coins/{coin_id}/ohlcv/historical"
     params = {
-        "quote_currency": "usd",
         "limit": hours
     }
     
-    response = requests.get(ohlcv_url, params=params)
+    response = requests.get(url, params=params)
+    
     if response.status_code == 200:
         data = response.json()
+        
+        if not data:
+            print(f"   ⚠️ {coin_id} için veri yok")
+            return None
         
         # Veriyi DataFrame'e dönüştür
         rows = []
         for item in data:
+            # Timestamp format: "2024-04-20T00:00:00Z"
+            timestamp_str = item.get('timestamp', '')
+            if timestamp_str:
+                # Saatlik veri için timestamp'i düzgün parse et
+                timestamp = pd.to_datetime(timestamp_str)
+            else:
+                continue
+                
             rows.append({
-                'timestamp': pd.to_datetime(item['timestamp']),
-                'open': item['open'],
-                'high': item['high'],
-                'low': item['low'],
-                'close': item['close'],
-                'volume': item['volume']
+                'timestamp': timestamp,
+                'open': float(item.get('open', 0)),
+                'high': float(item.get('high', 0)),
+                'low': float(item.get('low', 0)),
+                'close': float(item.get('close', 0)),
+                'volume': float(item.get('volume', 0))
             })
         
+        if not rows:
+            print(f"   ⚠️ {coin_id} için satır oluşturulamadı")
+            return None
+            
         df = pd.DataFrame(rows)
         df = df.sort_values('timestamp')
-        df = df.tail(hours)
-        df['coin'] = coin_id
         
+        # Hedeflenen saat sayısını al
+        df = df.tail(hours)
+        df['coin_id'] = coin_id
+        
+        print(f"   📊 {len(df)} saatlik veri alındı")
         return df
     else:
         print(f"   ❌ Hata {response.status_code}: {response.text[:100]}")
@@ -100,7 +98,7 @@ def add_technical_indicators(df):
     df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
     df['macd_histogram'] = df['macd'] - df['macd_signal']
     
-    # ATR
+    # ATR (Average True Range)
     df['high_low'] = df['high'] - df['low']
     df['high_close'] = abs(df['high'] - df['close'].shift())
     df['low_close'] = abs(df['low'] - df['close'].shift())
@@ -109,6 +107,9 @@ def add_technical_indicators(df):
     
     # Saatlik getiri
     df['hourly_return'] = df['close'].pct_change(1) * 100
+    
+    # Hacim değişimi
+    df['volume_change'] = df['volume'].pct_change(1) * 100
     
     # Trend durumu
     def get_trend(row):
@@ -127,6 +128,19 @@ def add_technical_indicators(df):
     
     df['trend'] = df.apply(get_trend, axis=1)
     
+    # RSI durumu
+    def get_rsi_status(rsi):
+        if pd.isna(rsi):
+            return "VERİ YOK"
+        elif rsi > 70:
+            return "AŞIRI ALIM"
+        elif rsi < 30:
+            return "AŞIRI SATIM"
+        else:
+            return "NÖTR"
+    
+    df['rsi_status'] = df['rsi_14'].apply(get_rsi_status)
+    
     return df
 
 def save_outputs(df, coin_name, coin_id, hours_requested):
@@ -136,6 +150,11 @@ def save_outputs(df, coin_name, coin_id, hours_requested):
     # Excel
     excel_name = f"output_{coin_name}_1h.xlsx"
     df.to_excel(excel_name, index=False)
+    
+    # Excel'de son 24 saat ayrı sheet'te
+    last_24h = df.tail(24)
+    with pd.ExcelWriter(excel_name, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+        last_24h.to_excel(writer, sheet_name='Son_24_Saat', index=False)
     
     # JSON - son durum
     son_satir = df.iloc[-1]
@@ -148,12 +167,15 @@ def save_outputs(df, coin_name, coin_id, hours_requested):
         "last_price": float(son_satir['close']) if pd.notna(son_satir['close']) else None,
         "trend": son_satir['trend'] if pd.notna(son_satir['trend']) else "VERİ YOK",
         "rsi_14": float(son_satir['rsi_14']) if pd.notna(son_satir['rsi_14']) else None,
+        "rsi_status": son_satir['rsi_status'] if pd.notna(son_satir['rsi_status']) else "VERİ YOK",
         "macd": float(son_satir['macd']) if pd.notna(son_satir['macd']) else None,
+        "macd_signal": float(son_satir['macd_signal']) if pd.notna(son_satir['macd_signal']) else None,
         "atr_14": float(son_satir['atr_14']) if pd.notna(son_satir['atr_14']) else None,
         "sma_24": float(son_satir['sma_24']) if pd.notna(son_satir['sma_24']) else None,
         "sma_168": float(son_satir['sma_168']) if pd.notna(son_satir['sma_168']) else None,
         "hourly_return_pct": float(son_satir['hourly_return']) if pd.notna(son_satir['hourly_return']) else None,
         "volume_24h": float(df.tail(24)['volume'].sum()),
+        "volume_avg_24h": float(df.tail(24)['volume'].mean()),
         "timestamp": datetime.now().isoformat()
     }
     
@@ -161,14 +183,14 @@ def save_outputs(df, coin_name, coin_id, hours_requested):
     with open(json_name, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     
-    # Son 24 saatlik detay
-    last_24h = df.tail(24)[['timestamp', 'close', 'high', 'low', 'volume', 'hourly_return', 'trend']].copy()
-    last_24h['timestamp'] = last_24h['timestamp'].dt.strftime('%Y-%m-%d %H:00')
-    last_24h_json = f"output_{coin_name}_last24h.json"
-    with open(last_24h_json, 'w', encoding='utf-8') as f:
-        json.dump(last_24h.to_dict(orient='records'), f, indent=2, ensure_ascii=False)
+    # Son 24 saatlik detay JSON
+    last_24h_json = last_24h[['timestamp', 'close', 'high', 'low', 'volume', 'hourly_return', 'rsi_14', 'trend']].copy()
+    last_24h_json['timestamp'] = last_24h_json['timestamp'].dt.strftime('%Y-%m-%d %H:00')
+    last_24h_file = f"output_{coin_name}_last24h.json"
+    with open(last_24h_file, 'w', encoding='utf-8') as f:
+        json.dump(last_24h_json.to_dict(orient='records'), f, indent=2, ensure_ascii=False)
     
-    return excel_name, json_name, last_24h_json, summary
+    return excel_name, json_name, last_24h_file, summary
 
 def create_master_report(all_summaries):
     """Tüm coinlerin özet raporu"""
@@ -188,7 +210,7 @@ def create_master_report(all_summaries):
 def main():
     print("=" * 60)
     print("🚀 TREND BOT - 1 SAATLİK VERİ ANALİZİ")
-    print("📍 Veri Kaynağı: CoinPaprika (Ücretsiz, Anahtarsız)")
+    print("📍 Veri Kaynağı: CoinPaprika")
     print("=" * 60)
     print(f"📋 İncelenecek coinler: {list(COINS.keys())}")
     print(f"⏰ Hedef: {LOOKBACK_HOURS} saat ({LOOKBACK_HOURS//24} gün)")
@@ -211,18 +233,16 @@ def main():
             print(f"   ✅ Excel: {excel_file}")
             print(f"   ✅ JSON: {json_file}")
             print(f"   ✅ Son 24h: {last24h_file}")
-            print(f"   📊 Saatlik veri: {len(df)} satır")
-            if summary['last_price']:
-                print(f"   📈 Son fiyat: ${summary['last_price']:,.2f}")
+            print(f"   📈 Son fiyat: ${summary['last_price']:,.2f}")
             print(f"   📊 Trend: {summary['trend']}")
             if summary.get('rsi_14'):
-                rsi_status = "AŞIRI ALIM" if summary['rsi_14'] > 70 else ("AŞIRI SATIM" if summary['rsi_14'] < 30 else "NÖTR")
-                print(f"   📊 RSI(14): {summary['rsi_14']:.1f} ({rsi_status})")
+                print(f"   📊 RSI(14): {summary['rsi_14']:.1f} ({summary['rsi_status']})")
+            print(f"   📊 24s Hacim: ${summary['volume_24h']:,.0f}")
         else:
             failed += 1
             print(f"   ❌ {coin_name} atlandı (yetersiz veri)")
         
-        # Rate limit için bekle
+        # Rate limit için bekle (ücretsiz API için iyi pratiktir)
         time.sleep(1)
     
     # Ana rapor
