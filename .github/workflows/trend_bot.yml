@@ -8,26 +8,67 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Repoyu indir
+        uses: actions/checkout@v4
       
-      - name: Python kurulumu
+      - name: 🐍 Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Kütüphaneleri yükle
+      - name: 📦 Kütüphaneleri yükle
         run: |
+          pip install --upgrade pip
           pip install yfinance pandas numpy openpyxl scikit-learn tensorflow
       
-      - name: Botu çalıştır
+      - name: 🔍 Dizin kontrolü (debug)
+        run: |
+          echo "=== Ana dizin ==="
+          pwd
+          ls -la
+          echo "=== bot dizini ==="
+          ls -la bot/ || echo "bot dizini yok!"
+          echo "=== Python versiyonu ==="
+          python --version
+      
+      - name: 🤖 Botu çalıştır (debug mod)
         run: |
           cd bot
-          python main.py
+          python -u main.py 2>&1 | tee bot.log
+        continue-on-error: false
       
-      - name: Çıktıları kaydet
+      - name: 📊 Çıktı kontrolü
+        run: |
+          echo "=== veri klasörü (ana dizin) ==="
+          ls -la veri/ 2>/dev/null || echo "veri klasörü yok"
+          echo "=== bot/veri klasörü ==="
+          ls -la bot/veri/ 2>/dev/null || echo "bot/veri klasörü yok"
+          echo "=== bot.log içeriği (son 50 satır) ==="
+          tail -50 bot/bot.log 2>/dev/null || echo "bot.log yok"
+      
+      - name: 💾 Çıktıları repoya kaydet
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add veri/
-          git commit -m "🤖 LSTM tahminleri - $(date -u '+%Y-%m-%d')" || echo "Değişiklik yok"
+          
+          # Çıktılar neredeyse oraya taşı
+          if [ -d "bot/veri" ]; then
+            mkdir -p veri
+            cp -r bot/veri/* veri/ 2>/dev/null || true
+          fi
+          
+          git add veri/ bot/veri/ 2>/dev/null || true
+          git commit -m "🤖 LSTM tahminleri - $(date -u '+%Y-%m-%d %H:%M')" || echo "Değişiklik yok"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 📤 Artifact olarak yükle (debug için)
+        uses: actions/upload-artifact@v4
+        with:
+          name: trend-bot-cikti
+          path: |
+            bot/veri/
+            veri/
+            bot/bot.log
+          retention-days: 30
