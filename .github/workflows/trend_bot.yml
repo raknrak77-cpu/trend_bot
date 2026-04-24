@@ -3,77 +3,73 @@ name: Trend Bot - LSTM
 on:
   workflow_dispatch:
 
+# KRİTİK: Yazma izni ver
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
     
     steps:
-      # 1. REPOYU İNDİR
       - name: 📥 Repoyu indir
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      # 2. PYTHON KUR
       - name: 🐍 Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      # 3. KÜTÜPHANELERİ YÜKLE
       - name: 📦 Kütüphaneleri yükle
         run: |
           pip install --upgrade pip
           pip install yfinance pandas numpy openpyxl scikit-learn tensorflow
       
-      # 4. DİZİN KONTROLÜ (DEBUG)
       - name: 🔍 Dizin kontrolü
         run: |
-          echo "=== Çalışma dizini ==="
-          pwd
-          echo "=== Ana dizin içeriği ==="
-          ls -la
           echo "=== bot dizini içeriği ==="
-          ls -la bot/ || echo "bot dizini yok!"
-          echo "=== Python versiyonu ==="
-          python --version
+          ls -la bot/ || echo "bot dizini yok"
       
-      # 5. BOTU ÇALIŞTIR (DEBUG MOD)
-      - name: 🤖 Botu çalıştır
+      - name: 🤖 Botu çalıştır (debug mod)
         run: |
           cd bot
           python -u main.py 2>&1 | tee bot.log
       
-      # 6. ÇIKTILARI KONTROL ET (DEBUG)
-      - name: 📊 Çıktı kontrolü
+      - name: 📊 Çıktıları kontrol et
         run: |
           echo "=== bot/veri klasörü ==="
           ls -la bot/veri/ 2>/dev/null || echo "bot/veri yok"
-          echo "=== bot.log son 30 satır ==="
-          tail -30 bot/bot.log 2>/dev/null || echo "bot.log yok"
+          
+          # main.py çıktıyı nereye yazdı?
+          echo "=== ana dizinde veri klasörü ==="
+          ls -la veri/ 2>/dev/null || echo "ana veri yok"
+          
+          echo "=== bot klasöründeki xlsx dosyaları ==="
+          ls -la bot/*.xlsx 2>/dev/null || echo "xlsx yok"
       
-      # 7. ÇIKTILARI ANA DİZİNE KAYDET (TARİHLİ + LATEST)
-      - name: 💾 Çıktıları repoya kaydet
+      - name: 💾 Çıktıları ana dizine taşı ve repoya kaydet
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Tarih ve saat etiketi (UTC)
           TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
           
           # Ana dizinde veri klasörünü oluştur
           mkdir -p "veri/${TIMESTAMP}"
           mkdir -p "veri/latest"
           
-          # Çıktıları varsa taşı/kopyala
-          if [ -d "bot/veri" ]; then
-            echo "📁 bot/veri bulundu, kopyalanıyor..."
+          # Çıktıları nereden alacağız?
+          # Önce bot/veri klasöründen dene
+          if [ -d "bot/veri" ] && [ "$(ls -A bot/veri)" ]; then
+            echo "📁 bot/veri/ bulundu, kopyalanıyor..."
             cp -r bot/veri/* "veri/${TIMESTAMP}/" 2>/dev/null || true
             cp -r bot/veri/* "veri/latest/" 2>/dev/null || true
-            echo "✅ Çıktılar kopyalandı"
-          else
-            echo "⚠️ bot/veri klasörü bulunamadı!"
           fi
           
-          # Alternatif: bot klasöründe direkt çıktı varsa
+          # Alternatif: bot klasöründen dene
           if [ -f "bot/tahminler.xlsx" ]; then
             echo "📁 bot/tahminler.xlsx bulundu"
             cp bot/tahminler.xlsx "veri/${TIMESTAMP}/" 2>/dev/null || true
@@ -85,23 +81,32 @@ jobs:
             cp bot/tahminler.json "veri/latest/" 2>/dev/null || true
           fi
           
+          # Alternatif: ana dizindeki veri klasöründen dene
+          if [ -f "veri/tahminler.xlsx" ]; then
+            echo "📁 veri/tahminler.xlsx bulundu"
+            cp veri/tahminler.xlsx "veri/${TIMESTAMP}/" 2>/dev/null || true
+            cp veri/tahminler.xlsx "veri/latest/" 2>/dev/null || true
+            cp veri/tahminler.json "veri/${TIMESTAMP}/" 2>/dev/null || true
+            cp veri/tahminler.json "veri/latest/" 2>/dev/null || true
+          fi
+          
           # Debug log'u da kaydet
           if [ -f "bot/bot.log" ]; then
             cp bot/bot.log "veri/${TIMESTAMP}/" 2>/dev/null || true
           fi
           
-          # Git'e ekle ve push et
-          echo "📤 Git'e ekleniyor..."
-          git add veri/
-          git add bot/bot.log 2>/dev/null || true
-          git commit -m "🤖 LSTM tahminleri - ${TIMESTAMP}" || echo "⚠️ Değişiklik yok"
-          git push
+          # Git'e ekle
+          git add veri/ --force
           
-          echo "✅ Repo güncellendi"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Değişiklik varsa commit et
+          if git diff --staged --quiet; then
+            echo "⚠️ Değişiklik yok, commit atlanıyor"
+          else
+            git commit -m "🤖 LSTM tahminleri - ${TIMESTAMP}"
+            git push origin main
+            echo "✅ Repo güncellendi"
+          fi
       
-      # 8. ARTIFACT OLARAK YÜKLE (YEDEK)
       - name: 📤 Artifact olarak yükle
         uses: actions/upload-artifact@v4
         with:
@@ -110,34 +115,17 @@ jobs:
             bot/veri/
             bot/tahminler.xlsx
             bot/tahminler.json
-            bot/bot.log
             veri/
+            bot/bot.log
           retention-days: 30
       
-      # 9. SONUÇ ÖZETİ
       - name: 📊 Sonuç özeti
         run: |
           echo ""
           echo "=========================================="
           echo "✅ TREND BOT İŞLEMİ TAMAMLANDI"
           echo "=========================================="
-          echo "📁 Çıktılar ana dizinde: veri/ klasöründe"
-          echo "   - veri/YYYY-MM-DD_HH-MM-SS/ (tarihli)"
-          echo "   - veri/latest/ (en son çalışma)"
-          echo "=========================================="
-          
-          # Excel varsa içeriğini göster
-          if [ -f "veri/latest/tahminler.xlsx" ]; then
-            echo "📊 En yüksek 5 beklenen getiri:"
-            python -c "
-import pandas as pd
-try:
-    df = pd.read_excel('veri/latest/tahminler.xlsx')
-    df = df.nlargest(5, 'beklenen_getiri_yuzde')
-    for _, r in df.iterrows():
-        print(f\"   {r['coin']:12s} {r['tahmin_saati']:4s}: %{r['beklenen_getiri_yuzde']:6.2f} (güven: %{r.get('guven_yuzde', 0):.1f})\")
-except:
-    print(\"   (Excel okunamadı)\")
-" 2>/dev/null || echo "   (Excel henüz oluşmadı)"
-          fi
+          echo "📁 Çıktılar:"
+          echo "   - Artifact olarak indirebilirsiniz"
+          echo "   - Repoda veri/ klasöründe (başarılı push olduysa)"
           echo "=========================================="
