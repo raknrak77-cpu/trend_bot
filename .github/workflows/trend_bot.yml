@@ -1,0 +1,49 @@
+name: Trend Bot - Saatlik Veri Analizi
+
+on:
+  schedule:
+    # Her gün Türkiye saati ile 09:00'da çalışır (UTC 06:00)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Manuel çalıştırmak için GitHub Actions sekmesinden başlatabilirsiniz
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Repoyu indir
+        uses: actions/checkout@v4
+      
+      - name: Python kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Kütüphaneleri yükle
+        run: |
+          pip install requests pandas openpyxl
+      
+      - name: Botu çalıştır
+        run: |
+          cd bot
+          python data_fetcher.py
+      
+      - name: Çıktıları yükle (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: trend-bot-outputs
+          path: |
+            bot/output_*.xlsx
+            bot/output_*.json
+            bot/master_report*.xlsx
+            bot/master_report*.json
+          retention-days: 30
+      
+      - name: Çıktıları repoya pushla (opsiyonel)
+        run: |
+          git config --global user.name "Trend Bot"
+          git config --global user.email "bot@trendbot.local"
+          git add bot/output_*.xlsx bot/output_*.json bot/master_report*.xlsx bot/master_report*.json 2>/dev/null || true
+          git commit -m "🤖 Trend Bot otomatik güncelleme $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || echo "Değişiklik yok"
+          git push || echo "Push başarısız (değişiklik yok veya izin hatası)"
