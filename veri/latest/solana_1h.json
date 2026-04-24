@@ -1,0 +1,61 @@
+{
+  "coin": "solana",
+  "symbol": "SOL-USD",
+  "timestamp": "2026-04-24T21:36:17.119649",
+  "last_price": 86.52999877929688,
+  "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+  "rsi_14": 65.44340153100626,
+  "rsi_status": "\u26aa N\u00d6TR",
+  "macd": 0.15577187376531754,
+  "macd_signal": 0.07504035906850992,
+  "atr_14": 0.5721419198172433,
+  "sma_24": 86.06208324432373,
+  "sma_168": 86.19095248267764,
+  "hourly_return": -0.43723951996353927,
+  "volume_24h": 304266496.0,
+  "data_points": 2025,
+  "predictions": {
+    "1h": {
+      "expected_return_pct": -0.02,
+      "expected_price": 86.52,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.0,
+      "direction_accuracy_10d": 50.0
+    },
+    "4h": {
+      "expected_return_pct": -0.08,
+      "expected_price": 86.46,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.2,
+      "direction_accuracy_10d": 20.0
+    },
+    "12h": {
+      "expected_return_pct": -0.2,
+      "expected_price": 86.36,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.4,
+      "direction_accuracy_10d": 10.0
+    },
+    "24h": {
+      "expected_return_pct": -0.28,
+      "expected_price": 86.29,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.6,
+      "direction_accuracy_10d": 0.0
+    },
+    "48h": {
+      "expected_return_pct": -0.47,
+      "expected_price": 86.12,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.9,
+      "direction_accuracy_10d": 100.0
+    },
+    "72h": {
+      "expected_return_pct": -1.36,
+      "expected_price": 85.35,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 17.7,
+      "direction_accuracy_10d": 20.0
+    }
+  }
+}

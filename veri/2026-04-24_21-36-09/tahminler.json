@@ -1,0 +1,338 @@
+[
+  {
+    "coin": "bitcoin",
+    "last_price": 77601.1875,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.01,
+        "expected_price": 77590.61,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.0,
+        "direction_accuracy_10d": 80.0
+      },
+      "4h": {
+        "expected_return_pct": -0.05,
+        "expected_price": 77564.05,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.1,
+        "direction_accuracy_10d": 70.0
+      },
+      "12h": {
+        "expected_return_pct": -0.13,
+        "expected_price": 77500.02,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.3,
+        "direction_accuracy_10d": 70.0
+      },
+      "24h": {
+        "expected_return_pct": -0.26,
+        "expected_price": 77396.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.5,
+        "direction_accuracy_10d": 80.0
+      },
+      "48h": {
+        "expected_return_pct": -0.51,
+        "expected_price": 77208.75,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.0,
+        "direction_accuracy_10d": 90.0
+      },
+      "72h": {
+        "expected_return_pct": -0.88,
+        "expected_price": 76917.45,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.8,
+        "direction_accuracy_10d": 0.0
+      }
+    }
+  },
+  {
+    "coin": "ethereum",
+    "last_price": 2316.0400390625,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.0,
+        "expected_price": 2316.0,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.0,
+        "direction_accuracy_10d": 60.0
+      },
+      "4h": {
+        "expected_return_pct": 0.02,
+        "expected_price": 2316.52,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.0,
+        "direction_accuracy_10d": 40.0
+      },
+      "12h": {
+        "expected_return_pct": 0.09,
+        "expected_price": 2318.19,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.2,
+        "direction_accuracy_10d": 70.0
+      },
+      "24h": {
+        "expected_return_pct": 0.24,
+        "expected_price": 2321.52,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.5,
+        "direction_accuracy_10d": 60.0
+      },
+      "48h": {
+        "expected_return_pct": 0.49,
+        "expected_price": 2327.43,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 16.0,
+        "direction_accuracy_10d": 100.0
+      },
+      "72h": {
+        "expected_return_pct": -0.05,
+        "expected_price": 2314.96,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.1,
+        "direction_accuracy_10d": 20.0
+      }
+    }
+  },
+  {
+    "coin": "binancecoin",
+    "last_price": 637.4600219726562,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.03,
+        "expected_price": 637.24,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.1,
+        "direction_accuracy_10d": 60.0
+      },
+      "4h": {
+        "expected_return_pct": -0.11,
+        "expected_price": 636.78,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.2,
+        "direction_accuracy_10d": 50.0
+      },
+      "12h": {
+        "expected_return_pct": -0.19,
+        "expected_price": 636.23,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.4,
+        "direction_accuracy_10d": 20.0
+      },
+      "24h": {
+        "expected_return_pct": -0.37,
+        "expected_price": 635.08,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.7,
+        "direction_accuracy_10d": 30.0
+      },
+      "48h": {
+        "expected_return_pct": -0.58,
+        "expected_price": 633.78,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.2,
+        "direction_accuracy_10d": 100.0
+      },
+      "72h": {
+        "expected_return_pct": -0.74,
+        "expected_price": 632.73,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.5,
+        "direction_accuracy_10d": 10.0
+      }
+    }
+  },
+  {
+    "coin": "solana",
+    "last_price": 86.52999877929688,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.02,
+        "expected_price": 86.52,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.0,
+        "direction_accuracy_10d": 50.0
+      },
+      "4h": {
+        "expected_return_pct": -0.08,
+        "expected_price": 86.46,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.2,
+        "direction_accuracy_10d": 20.0
+      },
+      "12h": {
+        "expected_return_pct": -0.2,
+        "expected_price": 86.36,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.4,
+        "direction_accuracy_10d": 10.0
+      },
+      "24h": {
+        "expected_return_pct": -0.28,
+        "expected_price": 86.29,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.6,
+        "direction_accuracy_10d": 0.0
+      },
+      "48h": {
+        "expected_return_pct": -0.47,
+        "expected_price": 86.12,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.9,
+        "direction_accuracy_10d": 100.0
+      },
+      "72h": {
+        "expected_return_pct": -1.36,
+        "expected_price": 85.35,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 17.7,
+        "direction_accuracy_10d": 20.0
+      }
+    }
+  },
+  {
+    "coin": "cardano",
+    "last_price": 0.251800000667572,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": 0.01,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.0,
+        "direction_accuracy_10d": 20.0
+      },
+      "4h": {
+        "expected_return_pct": 0.11,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.2,
+        "direction_accuracy_10d": 70.0
+      },
+      "12h": {
+        "expected_return_pct": 0.33,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.7,
+        "direction_accuracy_10d": 80.0
+      },
+      "24h": {
+        "expected_return_pct": 0.48,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 16.0,
+        "direction_accuracy_10d": 100.0
+      },
+      "48h": {
+        "expected_return_pct": 0.78,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 16.6,
+        "direction_accuracy_10d": 50.0
+      },
+      "72h": {
+        "expected_return_pct": 0.43,
+        "expected_price": 0.25,
+        "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+        "confidence_pct": 15.9,
+        "direction_accuracy_10d": 100.0
+      }
+    }
+  },
+  {
+    "coin": "ripple",
+    "last_price": 1.4378000497817993,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.06,
+        "expected_price": 1.44,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.1,
+        "direction_accuracy_10d": 50.0
+      },
+      "4h": {
+        "expected_return_pct": -0.2,
+        "expected_price": 1.43,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.4,
+        "direction_accuracy_10d": 20.0
+      },
+      "12h": {
+        "expected_return_pct": -0.47,
+        "expected_price": 1.43,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.9,
+        "direction_accuracy_10d": 30.0
+      },
+      "24h": {
+        "expected_return_pct": -0.72,
+        "expected_price": 1.43,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.4,
+        "direction_accuracy_10d": 0.0
+      },
+      "48h": {
+        "expected_return_pct": -1.34,
+        "expected_price": 1.42,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 17.7,
+        "direction_accuracy_10d": 90.0
+      },
+      "72h": {
+        "expected_return_pct": -1.83,
+        "expected_price": 1.41,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 18.7,
+        "direction_accuracy_10d": 0.0
+      }
+    }
+  },
+  {
+    "coin": "dogecoin",
+    "last_price": 0.09888000041246414,
+    "predictions": {
+      "1h": {
+        "expected_return_pct": -0.09,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.2,
+        "direction_accuracy_10d": 50.0
+      },
+      "4h": {
+        "expected_return_pct": -0.34,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 15.7,
+        "direction_accuracy_10d": 20.0
+      },
+      "12h": {
+        "expected_return_pct": -0.8,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 16.6,
+        "direction_accuracy_10d": 20.0
+      },
+      "24h": {
+        "expected_return_pct": -1.36,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 17.7,
+        "direction_accuracy_10d": 0.0
+      },
+      "48h": {
+        "expected_return_pct": -2.37,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 19.7,
+        "direction_accuracy_10d": 20.0
+      },
+      "72h": {
+        "expected_return_pct": -3.04,
+        "expected_price": 0.1,
+        "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+        "confidence_pct": 21.1,
+        "direction_accuracy_10d": 40.0
+      }
+    }
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "coin": "bitcoin",
+    "last_price": 77601.1875,
+    "trend": "\ud83d\udcc9 ZAYIF D\u00dc\u015e\u00dc\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "ethereum",
+    "last_price": 2316.0400390625,
+    "trend": "\ud83d\udcc9 G\u00dc\u00c7L\u00dc D\u00dc\u015e\u00dc\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "binancecoin",
+    "last_price": 637.4600219726562,
+    "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "solana",
+    "last_price": 86.52999877929688,
+    "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "cardano",
+    "last_price": 0.251800000667572,
+    "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "ripple",
+    "last_price": 1.4378000497817993,
+    "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+    "data_points": 2025
+  },
+  {
+    "coin": "dogecoin",
+    "last_price": 0.09888000041246414,
+    "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+    "data_points": 2025
+  }
+]

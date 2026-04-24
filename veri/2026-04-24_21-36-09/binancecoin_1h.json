@@ -1,0 +1,61 @@
+{
+  "coin": "binancecoin",
+  "symbol": "BNB-USD",
+  "timestamp": "2026-04-24T21:36:15.961941",
+  "last_price": 637.4600219726562,
+  "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+  "rsi_14": 57.66563336349809,
+  "rsi_status": "\u26aa N\u00d6TR",
+  "macd": 0.2568282998311133,
+  "macd_signal": 0.1767064337723427,
+  "atr_14": 2.5699898856026784,
+  "sma_24": 637.2670847574869,
+  "sma_168": 633.408929734003,
+  "hourly_return": -0.11124950350414053,
+  "volume_24h": 58034304.0,
+  "data_points": 2025,
+  "predictions": {
+    "1h": {
+      "expected_return_pct": -0.03,
+      "expected_price": 637.24,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.1,
+      "direction_accuracy_10d": 60.0
+    },
+    "4h": {
+      "expected_return_pct": -0.11,
+      "expected_price": 636.78,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.2,
+      "direction_accuracy_10d": 50.0
+    },
+    "12h": {
+      "expected_return_pct": -0.19,
+      "expected_price": 636.23,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.4,
+      "direction_accuracy_10d": 20.0
+    },
+    "24h": {
+      "expected_return_pct": -0.37,
+      "expected_price": 635.08,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.7,
+      "direction_accuracy_10d": 30.0
+    },
+    "48h": {
+      "expected_return_pct": -0.58,
+      "expected_price": 633.78,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 16.2,
+      "direction_accuracy_10d": 100.0
+    },
+    "72h": {
+      "expected_return_pct": -0.74,
+      "expected_price": 632.73,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 16.5,
+      "direction_accuracy_10d": 10.0
+    }
+  }
+}

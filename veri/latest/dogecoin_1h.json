@@ -1,0 +1,61 @@
+{
+  "coin": "dogecoin",
+  "symbol": "DOGE-USD",
+  "timestamp": "2026-04-24T21:36:20.822740",
+  "last_price": 0.09888000041246414,
+  "trend": "\ud83d\udcc8 G\u00dc\u00c7L\u00dc Y\u00dcKSEL\u0130\u015e",
+  "rsi_14": 64.38370984565955,
+  "rsi_status": "\u26aa N\u00d6TR",
+  "macd": 0.0003853712244476504,
+  "macd_signal": 0.00032512776328693727,
+  "atr_14": 0.0007364281586238316,
+  "sma_24": 0.09785999947537978,
+  "sma_168": 0.09608410706832296,
+  "hourly_return": -0.030326598483287892,
+  "volume_24h": 439761024.0,
+  "data_points": 2025,
+  "predictions": {
+    "1h": {
+      "expected_return_pct": -0.09,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.2,
+      "direction_accuracy_10d": 50.0
+    },
+    "4h": {
+      "expected_return_pct": -0.34,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.7,
+      "direction_accuracy_10d": 20.0
+    },
+    "12h": {
+      "expected_return_pct": -0.8,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 16.6,
+      "direction_accuracy_10d": 20.0
+    },
+    "24h": {
+      "expected_return_pct": -1.36,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 17.7,
+      "direction_accuracy_10d": 0.0
+    },
+    "48h": {
+      "expected_return_pct": -2.37,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 19.7,
+      "direction_accuracy_10d": 20.0
+    },
+    "72h": {
+      "expected_return_pct": -3.04,
+      "expected_price": 0.1,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 21.1,
+      "direction_accuracy_10d": 40.0
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "coin": "ethereum",
+  "symbol": "ETH-USD",
+  "timestamp": "2026-04-24T21:36:14.811299",
+  "last_price": 2316.0400390625,
+  "trend": "\ud83d\udcc9 G\u00dc\u00c7L\u00dc D\u00dc\u015e\u00dc\u015e",
+  "rsi_14": 52.005414048977975,
+  "rsi_status": "\u26aa N\u00d6TR",
+  "macd": -1.8563659605988505,
+  "macd_signal": -3.0759196677096883,
+  "atr_14": 15.000697544642858,
+  "sma_24": 2320.2462463378906,
+  "sma_168": 2337.719938732329,
+  "hourly_return": -0.48510691150418506,
+  "volume_24h": 2219984896.0,
+  "data_points": 2025,
+  "predictions": {
+    "1h": {
+      "expected_return_pct": -0.0,
+      "expected_price": 2316.0,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.0,
+      "direction_accuracy_10d": 60.0
+    },
+    "4h": {
+      "expected_return_pct": 0.02,
+      "expected_price": 2316.52,
+      "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+      "confidence_pct": 15.0,
+      "direction_accuracy_10d": 40.0
+    },
+    "12h": {
+      "expected_return_pct": 0.09,
+      "expected_price": 2318.19,
+      "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+      "confidence_pct": 15.2,
+      "direction_accuracy_10d": 70.0
+    },
+    "24h": {
+      "expected_return_pct": 0.24,
+      "expected_price": 2321.52,
+      "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+      "confidence_pct": 15.5,
+      "direction_accuracy_10d": 60.0
+    },
+    "48h": {
+      "expected_return_pct": 0.49,
+      "expected_price": 2327.43,
+      "direction": "\ud83d\udcc8 Y\u00dcKSEL\u0130\u015e",
+      "confidence_pct": 16.0,
+      "direction_accuracy_10d": 100.0
+    },
+    "72h": {
+      "expected_return_pct": -0.05,
+      "expected_price": 2314.96,
+      "direction": "\ud83d\udcc9 D\u00dc\u015e\u00dc\u015e",
+      "confidence_pct": 15.1,
+      "direction_accuracy_10d": 20.0
+    }
+  }
+}
