@@ -33,23 +33,25 @@ jobs:
         env:
           RUN_TIMESTAMP: ${{ env.FOLDER_NAME }}
       
-      - name: Çıktıları tarihli klasöre taşı
+      - name: Çıktıları ana dizine taşı
         run: |
-          mkdir -p "bot/veri/${{ env.FOLDER_NAME }}"
-          mv bot/veri/*.xlsx bot/veri/*.json "bot/veri/${{ env.FOLDER_NAME }}/" 2>/dev/null || true
-          echo "✅ Çıktılar bot/veri/${{ env.FOLDER_NAME }}/ klasörüne taşındı"
+          # Ana dizinde veri klasörü oluştur (yoksa)
+          mkdir -p "veri/${{ env.FOLDER_NAME }}"
+          
+          # bot/veri klasöründeki tüm dosyaları ana dizindeki tarihli klasöre taşı
+          if [ -d "bot/veri" ]; then
+            mv bot/veri/*.xlsx bot/veri/*.json "veri/${{ env.FOLDER_NAME }}/" 2>/dev/null || true
+            echo "✅ Dosyalar ana dizine taşındı: veri/${{ env.FOLDER_NAME }}/"
+          fi
+          
+          # Ayrıca en son çalışmanın kopyasını "latest" klasörüne al
+          mkdir -p "veri/latest"
+          cp -r "veri/${{ env.FOLDER_NAME }}"/* "veri/latest/" 2>/dev/null || true
       
-      - name: Repoya kaydet
+      - name: Repoya kaydet ve pushla
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add bot/veri/
+          git add veri/
           git commit -m "🤖 Bot çıktıları - ${{ env.FOLDER_NAME }}" || echo "Değişiklik yok"
           git push
-      
-      - name: Artifact olarak yükle
-        uses: actions/upload-artifact@v4
-        with:
-          name: veri-cikti-${{ env.TIMESTAMP }}
-          path: bot/veri/${{ env.FOLDER_NAME }}/
-          retention-days: 30
