@@ -1,53 +1,33 @@
-name: Trend Bot - Analiz
+name: Trend Bot
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */6 * * *'
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 📥 Repoyu indir
+      - name: Repoyu indir
         uses: actions/checkout@v4
       
-      - name: 🐍 Python kurulumu
+      - name: Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: 📦 Kütüphaneleri yükle
+      - name: Kütüphaneleri yükle
         run: |
-          pip install requests pandas openpyxl
+          pip install yfinance pandas openpyxl
       
-      - name: 🔍 Dizin yapısını göster (öncesi)
-        run: |
-          echo "=== Çalışma dizini ==="
-          pwd
-          ls -la
-          echo "=== bot klasörü ==="
-          ls -la bot/ 2>/dev/null || echo "bot klasörü yok"
-      
-      - name: 🤖 Botu çalıştır
+      - name: Botu çalıştır
         run: |
           cd bot
           python data_fetcher.py
-          echo "=== Bot çalıştı, çıktılar ==="
-          ls -la *.xlsx *.json 2>/dev/null || echo "Hiç çıktı dosyası bulunamadı"
       
-      - name: 📤 Tüm çıktıları yükle
+      - name: Çıktıları yükle
         uses: actions/upload-artifact@v4
         with:
-          name: trend-bot-ciktilari
-          path: |
-            bot/*.xlsx
-            bot/*.json
-            bot/*.log
+          name: veri-cikti
+          path: bot/veri/
           retention-days: 30
-      
-      - name: 📊 Çıktı listesi (sonrası)
-        run: |
-          echo "=== bot klasöründeki tüm dosyalar ==="
-          ls -la bot/
