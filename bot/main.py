@@ -54,16 +54,20 @@ def main():
         
         predictions = {}
         for hour in TARGET_HOURS:
-            print(f"      🔮 {hour}h...", end=" ")
+            print(f"      🔮 {hour}h...", end=" ", flush=True)
             pred, acc = train_and_predict(df, hour)
             if pred is not None:
+                # Güven yüzdesi: tahmin büyüdükçe güven artsın (max 85)
+                confidence = min(abs(pred * 100) * 1.5, 85) + 15
+                
                 predictions[f"{hour}h"] = {
                     "expected_return_pct": round(pred * 100, 2),
                     "expected_price": round(float(df['close'].iloc[-1]) * (1 + pred), 2),
                     "direction": "📈 YUKARI" if pred > 0 else "📉 ASAGI",
-                    "model_accuracy": round(acc, 1)
+                    "model_accuracy": round(acc, 1),
+                    "confidence_pct": round(confidence, 1)
                 }
-                print(f"✅ %{round(pred*100,2)}")
+                print(f"✅ %{round(pred*100,2)} (güven: %{round(confidence,1)})")
             else:
                 print(f"❌")
         
@@ -77,27 +81,41 @@ def main():
     
     # Kaydet
     if all_predictions:
-        with open(f"{OUTPUT_DIR}/tahminler.json", "w") as f:
-            json.dump(all_predictions, f, indent=2)
+        # JSON
+        with open(f"{OUTPUT_DIR}/tahminler.json", "w", encoding='utf-8') as f:
+            json.dump(all_predictions, f, indent=2, ensure_ascii=False)
         
+        # Excel (ZENGİN SÜTUNLARLA)
         rows = []
         for p in all_predictions:
             for h, pred in p['predictions'].items():
                 rows.append({
                     'coin': p['coin'],
-                    'son_fiyat': p['last_price'],
+                    'son_fiyat_usd': p['last_price'],
                     'tahmin_saati': h,
-                    'beklenen_getiri_%': pred['expected_return_pct'],
-                    'beklenen_fiyat': pred['expected_price'],
+                    'beklenen_getiri_yuzde': pred['expected_return_pct'],
+                    'beklenen_fiyat_usd': pred['expected_price'],
                     'yon': pred['direction'],
-                    'model_doğruluk_%': pred['model_accuracy']
+                    'guven_yuzde': pred['confidence_pct'],
+                    'model_gecmis_dogruluk_yuzde': pred['model_accuracy'],
+                    'tahmin_tarihi': p['timestamp']
                 })
-        pd.DataFrame(rows).to_excel(f"{OUTPUT_DIR}/tahminler.xlsx", index=False)
+        
+        df_excel = pd.DataFrame(rows)
+        df_excel.to_excel(f"{OUTPUT_DIR}/tahminler.xlsx", index=False)
         
         print("\n" + "=" * 70)
         print(f"✅ {len(all_predictions)}/{len(COINS)} coin başarılı")
-        print(f"📁 Çıktılar: {OUTPUT_DIR}/")
+        print(f"📁 JSON: {OUTPUT_DIR}/tahminler.json")
+        print(f"📊 Excel: {OUTPUT_DIR}/tahminler.xlsx")
         print("=" * 70)
+        
+        # Özet tablo
+        print("\n📈 ÖZET TABLO (En yüksek getiri beklenenler):")
+        summary_df = df_excel.nlargest(10, 'beklenen_getiri_yuzde')
+        for _, row in summary_df.iterrows():
+            print(f"   {row['coin']:12s} {row['tahmin_saati']:4s}: %{row['beklenen_getiri_yuzde']:6.2f} "
+                  f"(güven: %{row['guven_yuzde']:.1f})")
 
 if __name__ == "__main__":
     main()
