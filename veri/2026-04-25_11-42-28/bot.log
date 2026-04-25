@@ -1,0 +1,72 @@
+2026-04-25 11:35:49.686058: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-04-25 11:35:49.687776: I external/local_tsl/tsl/cuda/cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+2026-04-25 11:35:49.718118: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-04-25 11:35:49.718159: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-04-25 11:35:49.718954: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-04-25 11:35:49.723829: I external/local_tsl/tsl/cuda/cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+2026-04-25 11:35:49.724034: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-04-25 11:35:50.663828: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+======================================================================
+🚀 TREND BOT v2 - LSTM + Konsensüs Filtresi
+======================================================================
+📋 Coin: 4
+🎯 Hedef saatler: [4, 12, 24, 36, 48, 72]
+======================================================================
+
+🪙 BITCOIN (BTC-USD)
+      🔮 4h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+      🔮 12h... ✅ %+0.28 | doğruluk: %64.0 | güven: %64.6
+      🔮 24h... ✅ %+0.03 | doğruluk: %62.1 | güven: %62.2
+      🔮 36h... ✅ %-1.51 | doğruluk: %65.0 | güven: %68.0
+      🔮 48h... ✅ %+0.48 | doğruluk: %67.0 | güven: %68.0
+      🔮 72h... ✅ %+1.56 | doğruluk: %73.0 | güven: %76.1
+   📊 Konsensüs: 📈 YUKARI (80.0% - 4↑ / 1↓)
+
+🪙 ETHEREUM (ETH-USD)
+      🔮 4h... ✅ %-0.01 | doğruluk: %54.7 | güven: %54.7
+      🔮 12h... ✅ %+1.71 | doğruluk: %65.0 | güven: %68.4
+      🔮 24h... ✅ %+1.61 | doğruluk: %65.6 | güven: %68.8
+      🔮 36h... ✅ %+0.44 | doğruluk: %63.1 | güven: %64.0
+      🔮 48h... ✅ %+0.36 | doğruluk: %70.2 | güven: %70.9
+      🔮 72h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+   📊 Konsensüs: 📈 YUKARI (80.0% - 4↑ / 1↓)
+
+🪙 RIPPLE (XRP-USD)
+      🔮 4h... ✅ %+0.48 | doğruluk: %55.0 | güven: %56.0
+      🔮 12h... ✅ %+0.32 | doğruluk: %63.6 | güven: %64.2
+      🔮 24h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+      🔮 36h... ✅ %+0.42 | doğruluk: %62.8 | güven: %63.6
+      🔮 48h... ✅ %+0.50 | doğruluk: %62.8 | güven: %63.8
+      🔮 72h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+   📊 Konsensüs: 📈 YUKARI (100.0% - 4↑ / 0↓)
+
+🪙 SOLANA (SOL-USD)
+      🔮 4h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+      🔮 12h... ✅ %-0.05 | doğruluk: %53.6 | güven: %53.7
+      🔮 24h... ✅ %-0.59 | doğruluk: %63.2 | güven: %64.4
+      🔮 36h... ⏭️  atlandı (düşük kalite veya yüksek gürültü)
+      🔮 48h... ✅ %-0.21 | doğruluk: %58.5 | güven: %58.9
+      🔮 72h... ✅ %+0.06 | doğruluk: %52.2 | güven: %52.4
+   📊 Konsensüs: 📉 ASAGI (75.0% - 1↑ / 3↓)
+
+======================================================================
+✅ 4/4 coin başarılı
+📁 JSON : veri/tahminler.json
+📊 Excel: veri/tahminler.xlsx
+======================================================================
+
+🏆 GÜVENİLİR SİNYALLER (konsensüs ≥ %70, güven ≥ %60):
+   bitcoin      12h : 📈 YUKARI  %+0.28  güven:%64.6
+   bitcoin      24h : 📈 YUKARI  %+0.03  güven:%62.2
+   bitcoin      36h : 📉 ASAGI  %-1.51  güven:%68.0
+   bitcoin      48h : 📈 YUKARI  %+0.48  güven:%68.0
+   bitcoin      72h : 📈 YUKARI  %+1.56  güven:%76.1
+   ethereum     12h : 📈 YUKARI  %+1.71  güven:%68.4
+   ethereum     24h : 📈 YUKARI  %+1.61  güven:%68.8
+   ethereum     36h : 📈 YUKARI  %+0.44  güven:%64.0
+   ethereum     48h : 📈 YUKARI  %+0.36  güven:%70.9
+   ripple       12h : 📈 YUKARI  %+0.32  güven:%64.2
+   ripple       36h : 📈 YUKARI  %+0.42  güven:%63.6
+   ripple       48h : 📈 YUKARI  %+0.50  güven:%63.8
+   solana       24h : 📉 ASAGI  %-0.59  güven:%64.4
