@@ -24,7 +24,7 @@ COINS = {
     "polkadot": "DOT-USD"
 }
 LOOKBACK_HOURS = 3000
-TARGET_HOURS = [1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 32, 36, 48, 72]
+TARGET_HOURS = [2, 3, 4, 12, 16, 24, 28, 36, 48, 72]
 
 def main():
     if not os.path.exists(OUTPUT_DIR):
