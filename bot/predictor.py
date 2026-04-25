@@ -6,10 +6,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 import warnings
 warnings.filterwarnings('ignore')
 
-SEQUENCE_LENGTH = 168  # 1 hafta
+SEQUENCE_LENGTH = 168
 
 def create_lstm_model(input_shape):
-    """LSTM modeli oluştur - Gelişmiş versiyon"""
     model = Sequential([
         Bidirectional(LSTM(128, return_sequences=True), input_shape=input_shape),
         Dropout(0.2),
@@ -26,6 +25,10 @@ def create_lstm_model(input_shape):
 
 def prepare_sequences(df, features, target_hour):
     """LSTM için sequence hazırla"""
+    # 🆕 SONSUZ VE NaN DEĞERLERİ TEMİZLE
+    df = df.replace([np.inf, -np.inf], np.nan)
+    df = df.dropna()
+    
     df[f'target_{target_hour}h'] = df['close'].shift(-target_hour) / df['close'] - 1
     data = df[features + [f'target_{target_hour}h']].dropna()
     
@@ -46,24 +49,15 @@ def prepare_sequences(df, features, target_hour):
     return np.array(X), np.array(y), (scaler_X, scaler_y)
 
 def train_and_predict(df, target_hour):
-    """Model eğit ve tahmin yap - YENİ ÖZELLİKLER EKLENDİ"""
+    """Model eğit ve tahmin yap"""
     
-    # 🆕 GELİŞMİŞ ÖZELLİKLER (15 özellik)
+    # 🆕 volume_change ve momentum_12 geçici çıkarıldı (sıfıra bölme hatası için)
     features = [
-        # Temel fiyat ve hacim
         'close', 'volume',
-        
-        # Trend göstergeleri
         'sma_24', 'sma_168',
-        
-        # Momentum göstergeleri
         'rsi_14', 'macd', 'macd_signal',
-        
-        # Volatilite
         'atr_14', 'bb_position',
-        
-        # Getiri ve hacim değişimi
-        'hourly_return', 'volume_change', 'momentum_12'
+        'hourly_return'
     ]
     
     X, y, scalers = prepare_sequences(df, features, target_hour)
@@ -85,12 +79,10 @@ def train_and_predict(df, target_hour):
               callbacks=[early_stop],
               verbose=0)
     
-    # Tahmin
     last_sequence = X[-1:]
     prediction_scaled = model.predict(last_sequence, verbose=0)
     prediction = float(scalers[1].inverse_transform(prediction_scaled)[0, 0])
     
-    # Doğruluk
     y_val_pred = model.predict(X_val, verbose=0)
     y_val_actual = scalers[1].inverse_transform(y_val)
     y_val_pred_actual = scalers[1].inverse_transform(y_val_pred)
