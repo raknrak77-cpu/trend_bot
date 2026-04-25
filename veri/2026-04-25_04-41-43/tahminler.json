@@ -1,0 +1,751 @@
+[
+  {
+    "coin": "bitcoin",
+    "last_price": 77651.203125,
+    "timestamp": "2026-04-25T03:04:12.008678",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": 0.13,
+        "expected_price": 77749.38,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 50.6,
+        "confidence_pct": 15.2
+      },
+      "3h": {
+        "expected_return_pct": -0.38,
+        "expected_price": 77353.42,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 46.2,
+        "confidence_pct": 15.6
+      },
+      "4h": {
+        "expected_return_pct": -0.08,
+        "expected_price": 77587.57,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 40.7,
+        "confidence_pct": 15.1
+      },
+      "12h": {
+        "expected_return_pct": -0.31,
+        "expected_price": 77409.86,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 55.0,
+        "confidence_pct": 15.5
+      },
+      "16h": {
+        "expected_return_pct": -0.81,
+        "expected_price": 77024.12,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 36.0,
+        "confidence_pct": 16.2
+      },
+      "24h": {
+        "expected_return_pct": -0.57,
+        "expected_price": 77206.82,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 62.7,
+        "confidence_pct": 15.9
+      },
+      "28h": {
+        "expected_return_pct": -1.1,
+        "expected_price": 76796.96,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 21.8,
+        "confidence_pct": 16.7
+      },
+      "36h": {
+        "expected_return_pct": -2.04,
+        "expected_price": 76066.53,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 36.2,
+        "confidence_pct": 18.1
+      },
+      "48h": {
+        "expected_return_pct": -3.34,
+        "expected_price": 75054.73,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 15.6,
+        "confidence_pct": 20.0
+      },
+      "72h": {
+        "expected_return_pct": -3.37,
+        "expected_price": 75037.41,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 65.3,
+        "confidence_pct": 20.0
+      }
+    }
+  },
+  {
+    "coin": "ethereum",
+    "last_price": 2312.72998046875,
+    "timestamp": "2026-04-25T03:14:18.107197",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.3,
+        "expected_price": 2305.77,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 37.7,
+        "confidence_pct": 15.5
+      },
+      "3h": {
+        "expected_return_pct": -0.67,
+        "expected_price": 2297.24,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 52.0,
+        "confidence_pct": 16.0
+      },
+      "4h": {
+        "expected_return_pct": 0.15,
+        "expected_price": 2316.14,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 52.0,
+        "confidence_pct": 15.2
+      },
+      "12h": {
+        "expected_return_pct": 0.16,
+        "expected_price": 2316.35,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 55.2,
+        "confidence_pct": 15.2
+      },
+      "16h": {
+        "expected_return_pct": -0.13,
+        "expected_price": 2309.74,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 59.8,
+        "confidence_pct": 15.2
+      },
+      "24h": {
+        "expected_return_pct": -0.56,
+        "expected_price": 2299.81,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 62.5,
+        "confidence_pct": 15.8
+      },
+      "28h": {
+        "expected_return_pct": -0.76,
+        "expected_price": 2295.05,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 36.0,
+        "confidence_pct": 16.1
+      },
+      "36h": {
+        "expected_return_pct": -1.46,
+        "expected_price": 2279.03,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 52.7,
+        "confidence_pct": 17.2
+      },
+      "48h": {
+        "expected_return_pct": -0.55,
+        "expected_price": 2299.92,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 51.4,
+        "confidence_pct": 15.8
+      },
+      "72h": {
+        "expected_return_pct": -2.12,
+        "expected_price": 2263.79,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 74.4,
+        "confidence_pct": 18.2
+      }
+    }
+  },
+  {
+    "coin": "ripple",
+    "last_price": 1.433500051498413,
+    "timestamp": "2026-04-25T03:27:36.197498",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.26,
+        "expected_price": 1.43,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 47.2,
+        "confidence_pct": 15.4
+      },
+      "3h": {
+        "expected_return_pct": -0.29,
+        "expected_price": 1.43,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 46.8,
+        "confidence_pct": 15.4
+      },
+      "4h": {
+        "expected_return_pct": -0.3,
+        "expected_price": 1.43,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 41.9,
+        "confidence_pct": 15.4
+      },
+      "12h": {
+        "expected_return_pct": -1.31,
+        "expected_price": 1.41,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 37.0,
+        "confidence_pct": 17.0
+      },
+      "16h": {
+        "expected_return_pct": -0.54,
+        "expected_price": 1.43,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 48.2,
+        "confidence_pct": 15.8
+      },
+      "24h": {
+        "expected_return_pct": -1.19,
+        "expected_price": 1.42,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 61.5,
+        "confidence_pct": 16.8
+      },
+      "28h": {
+        "expected_return_pct": 0.47,
+        "expected_price": 1.44,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 67.9,
+        "confidence_pct": 15.7
+      },
+      "36h": {
+        "expected_return_pct": -0.65,
+        "expected_price": 1.42,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 62.2,
+        "confidence_pct": 16.0
+      },
+      "48h": {
+        "expected_return_pct": 1.39,
+        "expected_price": 1.45,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 75.7,
+        "confidence_pct": 17.1
+      },
+      "72h": {
+        "expected_return_pct": 0.16,
+        "expected_price": 1.44,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 74.8,
+        "confidence_pct": 15.2
+      }
+    }
+  },
+  {
+    "coin": "solana",
+    "last_price": 86.33999633789062,
+    "timestamp": "2026-04-25T03:40:03.379858",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.39,
+        "expected_price": 86.0,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 52.2,
+        "confidence_pct": 15.6
+      },
+      "3h": {
+        "expected_return_pct": -0.09,
+        "expected_price": 86.26,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 48.0,
+        "confidence_pct": 15.1
+      },
+      "4h": {
+        "expected_return_pct": -0.94,
+        "expected_price": 85.53,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 50.4,
+        "confidence_pct": 16.4
+      },
+      "12h": {
+        "expected_return_pct": -0.99,
+        "expected_price": 85.49,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 59.8,
+        "confidence_pct": 16.5
+      },
+      "16h": {
+        "expected_return_pct": -1.27,
+        "expected_price": 85.24,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 67.2,
+        "confidence_pct": 16.9
+      },
+      "24h": {
+        "expected_return_pct": -0.87,
+        "expected_price": 85.59,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 53.6,
+        "confidence_pct": 16.3
+      },
+      "28h": {
+        "expected_return_pct": -0.42,
+        "expected_price": 85.98,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 58.7,
+        "confidence_pct": 15.6
+      },
+      "36h": {
+        "expected_return_pct": -1.26,
+        "expected_price": 85.26,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 43.1,
+        "confidence_pct": 16.9
+      },
+      "48h": {
+        "expected_return_pct": 0.83,
+        "expected_price": 87.06,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 61.7,
+        "confidence_pct": 16.2
+      },
+      "72h": {
+        "expected_return_pct": 0.77,
+        "expected_price": 87.0,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 67.8,
+        "confidence_pct": 16.2
+      }
+    }
+  },
+  {
+    "coin": "dogecoin",
+    "last_price": 0.09861999750137329,
+    "timestamp": "2026-04-25T03:52:38.368200",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.33,
+        "expected_price": 0.1,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 49.0,
+        "confidence_pct": 15.5
+      },
+      "3h": {
+        "expected_return_pct": -0.21,
+        "expected_price": 0.1,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 46.5,
+        "confidence_pct": 15.3
+      },
+      "4h": {
+        "expected_return_pct": 0.12,
+        "expected_price": 0.1,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 53.1,
+        "confidence_pct": 15.2
+      },
+      "12h": {
+        "expected_return_pct": 0.06,
+        "expected_price": 0.1,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 59.3,
+        "confidence_pct": 15.1
+      },
+      "16h": {
+        "expected_return_pct": 0.46,
+        "expected_price": 0.1,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 61.5,
+        "confidence_pct": 15.7
+      },
+      "24h": {
+        "expected_return_pct": -1.02,
+        "expected_price": 0.1,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 61.6,
+        "confidence_pct": 16.5
+      },
+      "28h": {
+        "expected_return_pct": -0.02,
+        "expected_price": 0.1,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 70.7,
+        "confidence_pct": 15.0
+      },
+      "36h": {
+        "expected_return_pct": -0.19,
+        "expected_price": 0.1,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 76.6,
+        "confidence_pct": 15.3
+      },
+      "48h": {
+        "expected_return_pct": 0.98,
+        "expected_price": 0.1,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 76.7,
+        "confidence_pct": 16.5
+      },
+      "72h": {
+        "expected_return_pct": 1.7,
+        "expected_price": 0.1,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 69.3,
+        "confidence_pct": 17.6
+      }
+    }
+  },
+  {
+    "coin": "cardano",
+    "last_price": 0.251800000667572,
+    "timestamp": "2026-04-25T04:05:40.893323",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": 0.01,
+        "expected_price": 0.25,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 55.8,
+        "confidence_pct": 15.0
+      },
+      "3h": {
+        "expected_return_pct": -0.1,
+        "expected_price": 0.25,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 50.8,
+        "confidence_pct": 15.1
+      },
+      "4h": {
+        "expected_return_pct": -0.05,
+        "expected_price": 0.25,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 49.6,
+        "confidence_pct": 15.1
+      },
+      "12h": {
+        "expected_return_pct": -0.31,
+        "expected_price": 0.25,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 55.9,
+        "confidence_pct": 15.5
+      },
+      "16h": {
+        "expected_return_pct": 0.17,
+        "expected_price": 0.25,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 63.8,
+        "confidence_pct": 15.3
+      },
+      "24h": {
+        "expected_return_pct": -0.86,
+        "expected_price": 0.25,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 51.6,
+        "confidence_pct": 16.3
+      },
+      "28h": {
+        "expected_return_pct": 0.88,
+        "expected_price": 0.25,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 65.0,
+        "confidence_pct": 16.3
+      },
+      "36h": {
+        "expected_return_pct": 1.34,
+        "expected_price": 0.26,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 63.2,
+        "confidence_pct": 17.0
+      },
+      "48h": {
+        "expected_return_pct": 1.95,
+        "expected_price": 0.26,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 72.8,
+        "confidence_pct": 17.9
+      },
+      "72h": {
+        "expected_return_pct": -0.79,
+        "expected_price": 0.25,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 77.0,
+        "confidence_pct": 16.2
+      }
+    }
+  },
+  {
+    "coin": "toncoin",
+    "last_price": 0.006074685603380203,
+    "timestamp": "2026-04-25T04:06:59.704808",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": 1.55,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 76.9,
+        "confidence_pct": 17.3
+      },
+      "3h": {
+        "expected_return_pct": 3.51,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 76.9,
+        "confidence_pct": 20.3
+      },
+      "4h": {
+        "expected_return_pct": 0.76,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 80.0,
+        "confidence_pct": 16.1
+      },
+      "12h": {
+        "expected_return_pct": 8.41,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 100.0,
+        "confidence_pct": 27.6
+      },
+      "16h": {
+        "expected_return_pct": 10.53,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 100.0,
+        "confidence_pct": 30.8
+      },
+      "24h": {
+        "expected_return_pct": 6.13,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 100.0,
+        "confidence_pct": 24.2
+      },
+      "28h": {
+        "expected_return_pct": 5.72,
+        "expected_price": 0.01,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 100.0,
+        "confidence_pct": 23.6
+      }
+    }
+  },
+  {
+    "coin": "avalanche",
+    "last_price": 9.449999809265137,
+    "timestamp": "2026-04-25T04:19:00.385812",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": 0.11,
+        "expected_price": 9.46,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 46.9,
+        "confidence_pct": 15.2
+      },
+      "3h": {
+        "expected_return_pct": 0.09,
+        "expected_price": 9.46,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 47.3,
+        "confidence_pct": 15.1
+      },
+      "4h": {
+        "expected_return_pct": -0.74,
+        "expected_price": 9.38,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 52.5,
+        "confidence_pct": 16.1
+      },
+      "12h": {
+        "expected_return_pct": -1.37,
+        "expected_price": 9.32,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 60.1,
+        "confidence_pct": 17.0
+      },
+      "16h": {
+        "expected_return_pct": -1.79,
+        "expected_price": 9.28,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 67.4,
+        "confidence_pct": 17.7
+      },
+      "24h": {
+        "expected_return_pct": -0.73,
+        "expected_price": 9.38,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 69.2,
+        "confidence_pct": 16.1
+      },
+      "28h": {
+        "expected_return_pct": -2.26,
+        "expected_price": 9.24,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 63.3,
+        "confidence_pct": 18.4
+      },
+      "36h": {
+        "expected_return_pct": -0.86,
+        "expected_price": 9.37,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 64.3,
+        "confidence_pct": 16.3
+      },
+      "48h": {
+        "expected_return_pct": 3.73,
+        "expected_price": 9.8,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 64.4,
+        "confidence_pct": 20.6
+      },
+      "72h": {
+        "expected_return_pct": -0.44,
+        "expected_price": 9.41,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 69.3,
+        "confidence_pct": 15.7
+      }
+    }
+  },
+  {
+    "coin": "chainlink",
+    "last_price": 9.42199993133545,
+    "timestamp": "2026-04-25T04:31:21.410040",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.53,
+        "expected_price": 9.37,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 50.0,
+        "confidence_pct": 15.8
+      },
+      "3h": {
+        "expected_return_pct": -0.19,
+        "expected_price": 9.4,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 48.0,
+        "confidence_pct": 15.3
+      },
+      "4h": {
+        "expected_return_pct": -0.89,
+        "expected_price": 9.34,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 46.9,
+        "confidence_pct": 16.3
+      },
+      "12h": {
+        "expected_return_pct": -0.18,
+        "expected_price": 9.41,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 52.8,
+        "confidence_pct": 15.3
+      },
+      "16h": {
+        "expected_return_pct": -0.97,
+        "expected_price": 9.33,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 55.4,
+        "confidence_pct": 16.5
+      },
+      "24h": {
+        "expected_return_pct": -2.04,
+        "expected_price": 9.23,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 64.8,
+        "confidence_pct": 18.1
+      },
+      "28h": {
+        "expected_return_pct": -1.49,
+        "expected_price": 9.28,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 66.7,
+        "confidence_pct": 17.2
+      },
+      "36h": {
+        "expected_return_pct": -0.04,
+        "expected_price": 9.42,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 58.3,
+        "confidence_pct": 15.1
+      },
+      "48h": {
+        "expected_return_pct": 2.54,
+        "expected_price": 9.66,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 60.8,
+        "confidence_pct": 18.8
+      },
+      "72h": {
+        "expected_return_pct": -3.52,
+        "expected_price": 9.09,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 79.2,
+        "confidence_pct": 20.3
+      }
+    }
+  },
+  {
+    "coin": "polkadot",
+    "last_price": 1.2660000324249268,
+    "timestamp": "2026-04-25T04:41:20.784479",
+    "predictions": {
+      "2h": {
+        "expected_return_pct": -0.46,
+        "expected_price": 1.26,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 50.8,
+        "confidence_pct": 15.7
+      },
+      "3h": {
+        "expected_return_pct": 0.03,
+        "expected_price": 1.27,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 41.2,
+        "confidence_pct": 15.0
+      },
+      "4h": {
+        "expected_return_pct": 0.0,
+        "expected_price": 1.27,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 53.8,
+        "confidence_pct": 15.0
+      },
+      "12h": {
+        "expected_return_pct": 1.04,
+        "expected_price": 1.28,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 59.3,
+        "confidence_pct": 16.6
+      },
+      "16h": {
+        "expected_return_pct": 0.47,
+        "expected_price": 1.27,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 65.5,
+        "confidence_pct": 15.7
+      },
+      "24h": {
+        "expected_return_pct": -0.53,
+        "expected_price": 1.26,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 62.8,
+        "confidence_pct": 15.8
+      },
+      "28h": {
+        "expected_return_pct": 0.23,
+        "expected_price": 1.27,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 57.1,
+        "confidence_pct": 15.3
+      },
+      "36h": {
+        "expected_return_pct": -3.36,
+        "expected_price": 1.22,
+        "direction": "📉 ASAGI",
+        "model_accuracy": 62.8,
+        "confidence_pct": 20.0
+      },
+      "48h": {
+        "expected_return_pct": 2.27,
+        "expected_price": 1.29,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 65.1,
+        "confidence_pct": 18.4
+      },
+      "72h": {
+        "expected_return_pct": 3.93,
+        "expected_price": 1.32,
+        "direction": "📈 YUKARI",
+        "model_accuracy": 56.2,
+        "confidence_pct": 20.9
+      }
+    }
+  }
+]
