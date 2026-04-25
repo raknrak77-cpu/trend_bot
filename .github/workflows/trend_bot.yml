@@ -3,7 +3,6 @@ name: Trend Bot - LSTM
 on:
   workflow_dispatch:
 
-# KRİTİK: Yazma izni ver
 permissions:
   contents: write
   actions: read
@@ -42,67 +41,44 @@ jobs:
         run: |
           echo "=== bot/veri klasörü ==="
           ls -la bot/veri/ 2>/dev/null || echo "bot/veri yok"
-          
-          # main.py çıktıyı nereye yazdı?
           echo "=== ana dizinde veri klasörü ==="
           ls -la veri/ 2>/dev/null || echo "ana veri yok"
-          
           echo "=== bot klasöründeki xlsx dosyaları ==="
           ls -la bot/*.xlsx 2>/dev/null || echo "xlsx yok"
       
-      - name: 💾 Çıktıları ana dizine taşı ve repoya kaydet
+      - name: 💾 Çıktıları repoya kaydet (PUSH HATASIZ)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
           
-          # Ana dizinde veri klasörünü oluştur
           mkdir -p "veri/${TIMESTAMP}"
           mkdir -p "veri/latest"
           
-          # Çıktıları nereden alacağız?
-          # Önce bot/veri klasöründen dene
+          # Çıktıları kopyala
           if [ -d "bot/veri" ] && [ "$(ls -A bot/veri)" ]; then
             echo "📁 bot/veri/ bulundu, kopyalanıyor..."
             cp -r bot/veri/* "veri/${TIMESTAMP}/" 2>/dev/null || true
             cp -r bot/veri/* "veri/latest/" 2>/dev/null || true
           fi
           
-          # Alternatif: bot klasöründen dene
-          if [ -f "bot/tahminler.xlsx" ]; then
-            echo "📁 bot/tahminler.xlsx bulundu"
-            cp bot/tahminler.xlsx "veri/${TIMESTAMP}/" 2>/dev/null || true
-            cp bot/tahminler.xlsx "veri/latest/" 2>/dev/null || true
-          fi
-          
-          if [ -f "bot/tahminler.json" ]; then
-            cp bot/tahminler.json "veri/${TIMESTAMP}/" 2>/dev/null || true
-            cp bot/tahminler.json "veri/latest/" 2>/dev/null || true
-          fi
-          
-          # Alternatif: ana dizindeki veri klasöründen dene
-          if [ -f "veri/tahminler.xlsx" ]; then
-            echo "📁 veri/tahminler.xlsx bulundu"
-            cp veri/tahminler.xlsx "veri/${TIMESTAMP}/" 2>/dev/null || true
-            cp veri/tahminler.xlsx "veri/latest/" 2>/dev/null || true
-            cp veri/tahminler.json "veri/${TIMESTAMP}/" 2>/dev/null || true
-            cp veri/tahminler.json "veri/latest/" 2>/dev/null || true
-          fi
-          
-          # Debug log'u da kaydet
           if [ -f "bot/bot.log" ]; then
             cp bot/bot.log "veri/${TIMESTAMP}/" 2>/dev/null || true
           fi
           
-          # Git'e ekle
+          # 🔧 KRİTİK: Önce remote değişiklikleri çek
+          echo "📥 Remote değişiklikler çekiliyor..."
+          git pull origin main --no-rebase || echo "Pull hatası ama devam"
+          
           git add veri/ --force
           
-          # Değişiklik varsa commit et
           if git diff --staged --quiet; then
             echo "⚠️ Değişiklik yok, commit atlanıyor"
           else
             git commit -m "🤖 LSTM tahminleri - ${TIMESTAMP}"
+            # 🔧 KRİTİK: Push öncesi rebase
+            git pull origin main --rebase || true
             git push origin main
             echo "✅ Repo güncellendi"
           fi
