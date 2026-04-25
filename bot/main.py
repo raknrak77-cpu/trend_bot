@@ -14,19 +14,14 @@ OUTPUT_DIR = "veri"
 COINS = {
     "bitcoin": "BTC-USD",
     "ethereum": "ETH-USD",
-    "binancecoin": "BNB-USD",
-    "solana": "SOL-USD",
-    "cardano": "ADA-USD",
     "ripple": "XRP-USD",
+    "solana": "SOL-USD",
     "dogecoin": "DOGE-USD",
-    "polkadot": "DOT-USD",
-    "avalanche": "AVAX-USD",
-    "shiba_inu": "SHIB-USD",
+    "cardano": "ADA-USD",
     "toncoin": "TON-USD",
+    "avalanche": "AVAX-USD",
     "chainlink": "LINK-USD",
-    "uniswap": "UNI-USD",
-    "litecoin": "LTC-USD",
-    "aptos": "APT-USD"
+    "polkadot": "DOT-USD"
 }
 LOOKBACK_HOURS = 3000
 TARGET_HOURS = [1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 32, 36, 48, 72]
