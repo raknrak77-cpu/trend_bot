@@ -1,261 +1,277 @@
 import pandas as pd
-import json
-import os
+import numpy as np
 import yfinance as yf
 from datetime import datetime, timedelta
-import glob
+import json
+import os
 
 print("=" * 70)
-print("📊 PERFORMANS DEĞERLENDİRME BOTU")
+print("📊 BACKTEST DEĞERLENDİRME (Geçmiş Veri ile Anında Test)")
 print("=" * 70)
 
-VERI_KLASORU = "veri"
+# ============================================================
+# AYARLAR
+# ============================================================
 COINS = {
     "bitcoin": "BTC-USD",
     "ethereum": "ETH-USD",
-    "binancecoin": "BNB-USD",
-    "solana": "SOL-USD",
-    "cardano": "ADA-USD",
     "ripple": "XRP-USD",
+    "solana": "SOL-USD",
     "dogecoin": "DOGE-USD",
-    "polkadot": "DOT-USD",
-    "avalanche": "AVAX-USD",
-    "shiba_inu": "SHIB-USD",
+    "cardano": "ADA-USD",
     "toncoin": "TON-USD",
+    "avalanche": "AVAX-USD",
     "chainlink": "LINK-USD",
-    "uniswap": "UNI-USD",
-    "litecoin": "LTC-USD",
-    "aptos": "APT-USD"
+    "polkadot": "DOT-USD"
 }
 
-def get_gecmis_tahminler():
-    """Tüm geçmiş tahmin dosyalarını topla"""
-    json_files = glob.glob(f"{VERI_KLASORU}/**/tahminler.json", recursive=True)
-    json_files += glob.glob(f"{VERI_KLASORU}/tahminler.json", recursive=True)
-    
-    # En yeni önce gelecek şekilde sırala
-    json_files.sort(reverse=True)
-    
-    tum_tahminler = []
-    
-    for file_path in json_files:
-        try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Dosya adından tarih bilgisini çıkar
-                tarih = file_path.split('/')[-2] if '/veri/' in file_path else 'latest'
-                tum_tahminler.append({
-                    'tarih': tarih,
-                    'dosya': file_path,
-                    'veri': data
-                })
-        except Exception as e:
-            print(f"   ⚠️ {file_path} okunamadı: {e}")
-    
-    return tum_tahminler
+TEST_HOURS = 240  # Son 240 saat (10 gün) test edilecek
+TARGET_HOURS = [2, 3, 4, 12, 16, 24, 28, 36, 48, 72]  # Tahmin edilecek saatler
 
-def get_gerceklesen_fiyat(symbol, target_date):
-    """Belirli bir tarihteki gerçek fiyatı çek"""
+# ============================================================
+# VERİ ÇEKME (data_fetcher'dan bağımsız)
+# ============================================================
+def fetch_yahoo_data(symbol="BTC-USD", hours=3000):
+    """Yahoo Finance'ten veri çek"""
     try:
         ticker = yf.Ticker(symbol)
-        # Hedef tarihten 1 gün önce ve 1 gün sonra veri çek
-        start = target_date - timedelta(days=1)
-        end = target_date + timedelta(days=2)
+        days = hours / 24 + 7
+        end = datetime.now()
+        start = end - timedelta(days=days)
         
         df = ticker.history(start=start, end=end, interval="1h")
         
         if df.empty:
             return None
         
-        # Hedef tarihe en yakın fiyatı bul
         df = df.reset_index()
-        df['timestamp'] = df['Datetime'].dt.tz_localize(None)
-        df['diff'] = abs(df['timestamp'] - target_date)
+        df = df.rename(columns={
+            'Datetime': 'timestamp',
+            'Open': 'open',
+            'High': 'high',
+            'Low': 'low',
+            'Close': 'close',
+            'Volume': 'volume'
+        })
         
-        en_yakin = df.loc[df['diff'].idxmin()]
-        return float(en_yakin['Close'])
+        df['timestamp'] = df['timestamp'].dt.tz_localize(None)
+        df = df.tail(hours)
+        return df
     except Exception as e:
+        print(f"   ❌ Hata: {str(e)[:80]}")
         return None
 
-def evaluate_predictions(tahmin_dosyasi, coin_name, tahmin_saati, beklenen_fiyat, tahmin_tarihi):
-    """Tek bir tahmini değerlendir"""
-    # Hedef tarihi hesapla (tahmin tarihi + tahmin saati)
-    hedef_tarih = tahmin_tarihi + timedelta(hours=tahmin_saati)
+# ============================================================
+# TEKNİK GÖSTERGELER
+# ============================================================
+def add_features(df):
+    """Teknik göstergeler ekle"""
+    if len(df) < 200:
+        return df
     
-    # Gerçekleşen fiyatı al
-    symbol = COINS.get(coin_name)
-    if not symbol:
-        return None
+    df['sma_24'] = df['close'].rolling(24).mean()
+    df['sma_72'] = df['close'].rolling(72).mean()
+    df['sma_168'] = df['close'].rolling(168).mean()
     
-    gercek_fiyat = get_gerceklesen_fiyat(symbol, hedef_tarih)
+    # RSI
+    delta = df['close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    df['rsi_14'] = 100 - (100 / (1 + rs))
     
-    if gercek_fiyat is None:
-        return None
+    # MACD
+    df['ema_12'] = df['close'].ewm(span=12, adjust=False).mean()
+    df['ema_24'] = df['close'].ewm(span=24, adjust=False).mean()
+    df['macd'] = df['ema_12'] - df['ema_24']
+    df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
     
-    # Beklenen ve gerçekleşen getiri
-    beklenen_getiri = beklenen_fiyat / tahmin_tarihi_fiyat - 1
-    gerceklesen_getiri = gercek_fiyat / tahmin_tarihi_fiyat - 1
+    # ATR
+    df['high_low'] = df['high'] - df['low']
+    df['high_close'] = abs(df['high'] - df['close'].shift())
+    df['low_close'] = abs(df['low'] - df['close'].shift())
+    df['true_range'] = df[['high_low', 'high_close', 'low_close']].max(axis=1)
+    df['atr_14'] = df['true_range'].rolling(window=14).mean()
     
-    # Doğru mu?
-    yon_dogru = (beklenen_getiri > 0) == (gerceklesen_getiri > 0)
-    hata_payi = abs(beklenen_getiri - gerceklesen_getiri)
+    # Bollinger
+    df['bb_middle'] = df['close'].rolling(20).mean()
+    bb_std = df['close'].rolling(20).std()
+    df['bb_upper'] = df['bb_middle'] + (bb_std * 2)
+    df['bb_lower'] = df['bb_middle'] - (bb_std * 2)
+    df['bb_position'] = (df['close'] - df['bb_lower']) / (df['bb_upper'] - df['bb_lower'])
     
-    return {
-        'coin': coin_name,
-        'tahmin_saati': tahmin_saati,
-        'tahmin_tarihi': tahmin_tarihi.strftime('%Y-%m-%d %H:%M'),
-        'tahmin_fiyati': beklenen_fiyat,
-        'gerceklesen_fiyat': gercek_fiyat,
-        'beklenen_getiri_pct': round(beklenen_getiri * 100, 2),
-        'gerceklesen_getiri_pct': round(gerceklesen_getiri * 100, 2),
-        'yon_dogru': '✅ EVET' if yon_dogru else '❌ HAYIR',
-        'hata_payi_pct': round(hata_payi * 100, 2),
-        'tahmin_kaynagi': tahmin_dosyasi
-    }
+    # Momentum ve getiri
+    df['momentum_12'] = df['close'].pct_change(12) * 100
+    df['hourly_return'] = df['close'].pct_change(1) * 100
+    df['volume_change'] = df['volume'].pct_change(1) * 100
+    
+    return df
 
-def main():
-    print("📂 Geçmiş tahminler taranıyor...")
-    gecmis_tahminler = get_gecmis_tahminler()
+# ============================================================
+# BASİT MODEL (Backtest için hızlı)
+# ============================================================
+def simple_predict(train_df, test_point, target_hour):
+    """Basit bir tahmin modeli (ortalama + trend)"""
+    if len(train_df) < 100:
+        return None
     
-    if not gecmis_tahminler:
-        print("❌ Hiç tahmin dosyası bulunamadı!")
-        print("   Önce ana botu çalıştırın.")
-        return
+    # Son 24 saatlik ortalama getiri
+    avg_return = train_df['hourly_return'].tail(24).mean() / 100
     
-    print(f"✅ {len(gecmis_tahminler)} tahmin dosyası bulundu.")
-    print("-" * 70)
+    # Trend gücü (RSI bazlı)
+    rsi = train_df['rsi_14'].iloc[-1]
+    if rsi > 70:
+        trend_factor = -0.002  # Aşırı alım, düşüş beklentisi
+    elif rsi < 30:
+        trend_factor = 0.002   # Aşırı satım, yükseliş beklentisi
+    else:
+        trend_factor = 0.001
     
-    tum_degerlendirmeler = []
+    # Tahmin (basit)
+    prediction = avg_return * (target_hour / 24) + trend_factor
     
-    for tahmin_dosyasi in gecmis_tahminler:
-        print(f"\n📁 {tahmin_dosyasi['tarih']}")
+    return prediction
+
+# ============================================================
+# BACKTEST
+# ============================================================
+def backtest_coin(coin_name, symbol):
+    """Bir coin için backtest yap"""
+    print(f"\n🪙 {coin_name.upper()} ({symbol})")
+    
+    # Veriyi çek
+    df = fetch_yahoo_data(symbol, hours=3000)
+    if df is None or len(df) < 500:
+        print(f"   ❌ Yetersiz veri")
+        return None
+    
+    df = add_features(df)
+    df = df.dropna()
+    
+    if len(df) < TEST_HOURS + 100:
+        print(f"   ❌ Test için yetersiz veri")
+        return None
+    
+    # Eğitim ve test setlerine ayır
+    train_df = df.iloc[:-TEST_HOURS].copy()
+    test_df = df.iloc[-TEST_HOURS:].copy()
+    
+    print(f"   📊 Eğitim: {len(train_df)} saat, Test: {len(test_df)} saat")
+    
+    results = []
+    
+    # Her test noktası için tahmin yap
+    for i, test_idx in enumerate(test_df.index):
+        # Test noktasına kadar olan tüm veriyi eğitim olarak kullan
+        current_train = df[df.index <= test_idx].copy()
         
-        for coin_data in tahmin_dosyasi['veri']:
-            coin_name = coin_data['coin']
-            tahmin_tarihi_str = coin_data.get('timestamp', '')
+        if len(current_train) < 200:
+            continue
+        
+        for hour in TARGET_HOURS:
+            # Tahmin yapılacak zaman noktası
+            target_idx = test_idx + timedelta(hours=hour)
             
-            try:
-                tahmin_tarihi = datetime.fromisoformat(tahmin_tarihi_str.replace('Z', '+00:00'))
-            except:
+            # Eğer target_idx test setinin dışındaysa atla
+            if target_idx not in test_df.index:
                 continue
             
-            # Tahmin anındaki fiyat (globalde değil, burada tanımla)
-            tahmin_ani_fiyat = coin_data['last_price']
+            # Tahmin yap
+            pred_return = simple_predict(current_train, test_df.loc[test_idx], hour)
             
-            for saat, pred in coin_data['predictions'].items():
-                saat_int = int(saat.replace('h', ''))
-                beklenen_fiyat = pred['expected_price']
-                
-                # Bugünün tarihinden eski tahminleri değerlendirme
-                if tahmin_tarihi + timedelta(hours=saat_int) > datetime.now():
-                    continue
-                
-                degerlendirme = evaluate_predictions(
-                    tahmin_dosyasi['tarih'],
-                    coin_name,
-                    saat_int,
-                    beklenen_fiyat,
-                    tahmin_tarihi
-                )
-                
-                if degerlendirme:
-                    # tahmin anı fiyatını ekle
-                    degerlendirme['tahmin_ani_fiyat'] = tahmin_ani_fiyat
-                    tum_degerlendirmeler.append(degerlendirme)
-        
-        print(f"   ✅ {len([d for d in tum_degerlendirmeler if d['tahmin_kaynagi'] == tahmin_dosyasi['tarih']])} değerlendirme yapıldı")
+            if pred_return is None:
+                continue
+            
+            # Gerçekleşen getiri
+            current_price = test_df.loc[test_idx]['close']
+            future_price = test_df.loc[target_idx]['close']
+            actual_return = (future_price - current_price) / current_price
+            
+            # Başarı kontrolü
+            direction_correct = (pred_return > 0) == (actual_return > 0)
+            
+            results.append({
+                'coin': coin_name,
+                'test_hour': test_idx.strftime('%Y-%m-%d %H:00'),
+                'target_hour': hour,
+                'current_price': round(current_price, 2),
+                'predicted_price': round(current_price * (1 + pred_return), 2),
+                'actual_price': round(future_price, 2),
+                'predicted_return_pct': round(pred_return * 100, 2),
+                'actual_return_pct': round(actual_return * 100, 2),
+                'direction_correct': '✅ EVET' if direction_correct else '❌ HAYIR'
+            })
     
-    # Rapor oluştur
-    if not tum_degerlendirmeler:
-        print("\n❌ Henüz değerlendirilebilecek tahmin yok.")
-        print("   (Tahminlerin gerçekleşmesi için zaman gerekir)")
-        return
-    
-    df = pd.DataFrame(tum_degerlendirmeler)
-    
-    # Özet istatistikler
-    print("\n" + "=" * 70)
-    print("📊 DEĞERLENDİRME RAPORU")
+    print(f"   ✅ {len(results)} tahmin değerlendirildi")
+    return results
+
+# ============================================================
+# ANA FONKSİYON
+# ============================================================
+def main():
+    print(f"📋 Test edilecek coin: {len(COINS)}")
+    print(f"⏰ Geriye dönük test: {TEST_HOURS} saat ({TEST_HOURS//24} gün)")
+    print(f"🎯 Hedef saatler: {TARGET_HOURS}")
     print("=" * 70)
     
-    # Genel başarı oranı
-    genel_basari = (df['yon_dogru'] == '✅ EVET').mean() * 100
-    print(f"\n🎯 GENEL BAŞARI ORANI: %{genel_basari:.1f}")
+    all_results = []
+    
+    for coin_name, symbol in COINS.items():
+        results = backtest_coin(coin_name, symbol)
+        if results:
+            all_results.extend(results)
+    
+    if not all_results:
+        print("\n❌ Hiçbir sonuç elde edilemedi!")
+        return
+    
+    df = pd.DataFrame(all_results)
+    
+    # Rapor
+    print("\n" + "=" * 70)
+    print("📊 BACKTEST RAPORU (Gerçek Geçmiş Performans)")
+    print("=" * 70)
+    
+    # Genel başarı
+    overall_accuracy = (df['direction_correct'] == '✅ EVET').mean() * 100
+    print(f"\n🎯 GENEL BAŞARI ORANI: %{overall_accuracy:.1f}")
     print(f"   Toplam değerlendirme: {len(df)}")
     
     # Saat bazında başarı
     print("\n⏰ SAAT BAZINDA BAŞARI ORANLARI:")
-    saat_bazli = df.groupby('tahmin_saati').apply(
-        lambda x: (x['yon_dogru'] == '✅ EVET').mean() * 100
-    ).sort_index()
-    
-    for saat, basari in saat_bazli.items():
-        print(f"   {saat:2d} saat: %{basari:.1f} ({len(df[df['tahmin_saati']==saat])} tahmin)")
+    for hour in sorted(df['target_hour'].unique()):
+        hour_df = df[df['target_hour'] == hour]
+        acc = (hour_df['direction_correct'] == '✅ EVET').mean() * 100
+        print(f"   {hour:2d} saat: %{acc:.1f} ({len(hour_df)} tahmin)")
     
     # Coin bazında başarı
     print("\n🪙 COIN BAZINDA BAŞARI ORANLARI:")
-    coin_bazli = df.groupby('coin').apply(
-        lambda x: (x['yon_dogru'] == '✅ EVET').mean() * 100
-    ).sort_values(ascending=False)
+    for coin in df['coin'].unique():
+        coin_df = df[df['coin'] == coin]
+        acc = (coin_df['direction_correct'] == '✅ EVET').mean() * 100
+        print(f"   {coin:12s}: %{acc:.1f} ({len(coin_df)} tahmin)")
     
-    for coin, basari in coin_bazli.items():
-        print(f"   {coin:15s}: %{basari:.1f} ({len(df[df['coin']==coin])} tahmin)")
+    # Ortalama hata
+    df['error_pct'] = abs(df['predicted_return_pct'] - df['actual_return_pct'])
+    print(f"\n📉 ORTALAMA HATA PAYI: %{df['error_pct'].mean():.2f}")
     
-    # Ortalama hata payı
-    ortalama_hata = df['hata_payi_pct'].mean()
-    print(f"\n📉 ORTALAMA HATA PAYI: %{ortalama_hata:.2f}")
-    
-    # En başarılı ve başarısız tahminler
-    print("\n🏆 EN BAŞARILI 5 TAHMİN:")
-    basarili = df[df['yon_dogru'] == '✅ EVET'].nlargest(5, 'gerceklesen_getiri_pct')
-    for _, row in basarili.iterrows():
-        print(f"   {row['coin']} {row['tahmin_saati']}h: +%{row['gerceklesen_getiri_pct']} (tahmin: %{row['beklenen_getiri_pct']})")
-    
-    print("\n📉 EN BAŞARISIZ 5 TAHMİN:")
-    basarisiz = df[df['yon_dogru'] == '❌ HAYIR'].nlargest(5, 'hata_payi_pct')
-    for _, row in basarisiz.iterrows():
-        print(f"   {row['coin']} {row['tahmin_saati']}h: tahmin %{row['beklenen_getiri_pct']} → gerçek %{row['gerceklesen_getiri_pct']}")
-    
-    # Raporu kaydet
-    output_dir = f"{VERI_KLASORU}/performans"
+    # Sonuçları kaydet
+    output_dir = "veri/backtest"
     os.makedirs(output_dir, exist_ok=True)
     
-    # Excel raporu
-    excel_path = f"{output_dir}/performans_raporu.xlsx"
-    with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='Tum_Degerlendirmeler', index=False)
-        
-        # Özet sayfası
-        ozet_df = pd.DataFrame([
-            {'metrik': 'Genel Başarı Oranı', 'değer': f'%{genel_basari:.1f}'},
-            {'metrik': 'Toplam Değerlendirme', 'değer': len(df)},
-            {'metrik': 'Ortalama Hata Payı', 'değer': f'%{ortalama_hata:.2f}'}
-        ])
-        ozet_df.to_excel(writer, sheet_name='Ozet', index=False)
-        
-        saat_df = saat_bazli.reset_index()
-        saat_df.columns = ['tahmin_saati', 'başarı_orani_yuzde']
-        saat_df.to_excel(writer, sheet_name='Saat_Bazli', index=False)
-        
-        coin_df = coin_bazli.reset_index()
-        coin_df.columns = ['coin', 'başarı_orani_yuzde']
-        coin_df.to_excel(writer, sheet_name='Coin_Bazli', index=False)
+    excel_path = f"{output_dir}/backtest_raporu.xlsx"
+    df.to_excel(excel_path, index=False)
     
-    # JSON raporu
-    json_path = f"{output_dir}/performans_raporu.json"
+    json_path = f"{output_dir}/backtest_raporu.json"
     with open(json_path, 'w') as f:
         json.dump({
-            'genel_basari_orani': round(genel_basari, 1),
+            'genel_basari_orani': round(overall_accuracy, 1),
             'toplam_degerlendirme': len(df),
-            'ortalama_hata_payi': round(ortalama_hata, 2),
-            'saat_bazli': {int(k): round(v, 1) for k, v in saat_bazli.items()},
-            'coin_bazli': {k: round(v, 1) for k, v in coin_bazli.items()},
+            'ortalama_hata_payi': round(df['error_pct'].mean(), 2),
             'timestamp': datetime.now().isoformat()
         }, f, indent=2)
     
-    print(f"\n📁 Rapor kaydedildi:")
-    print(f"   📊 Excel: {excel_path}")
-    print(f"   📄 JSON: {json_path}")
+    print(f"\n📁 Rapor: {excel_path}")
     print("=" * 70)
 
 if __name__ == "__main__":
