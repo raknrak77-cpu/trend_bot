@@ -1,0 +1,42 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1777085168.652709    2484 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1777085168.697964    2484 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1777085170.131847    2484 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+======================================================================
+🚀 TREND BOT - LSTM (15 Coin | 14 Saat)
+======================================================================
+📋 Coin: 10
+🎯 Hedef saat: 10
+======================================================================
+
+🪙 BITCOIN (BTC-USD)
+      🔮 2h... Traceback (most recent call last):
+  File "/home/runner/work/trend_bot/trend_bot/bot/main.py", line 116, in <module>
+    main()
+  File "/home/runner/work/trend_bot/trend_bot/bot/main.py", line 53, in main
+    pred, acc = train_and_predict(df, hour)
+  File "/home/runner/work/trend_bot/trend_bot/bot/predictor.py", line 69, in train_and_predict
+    X, y, scalers = prepare_sequences(df, features, target_hour)
+  File "/home/runner/work/trend_bot/trend_bot/bot/predictor.py", line 38, in prepare_sequences
+    X_scaled = scaler_X.fit_transform(data[features].values)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/utils/_set_output.py", line 316, in wrapped
+    data_to_wrap = f(self, X, *args, **kwargs)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/base.py", line 894, in fit_transform
+    return self.fit(X, **fit_params).transform(X)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/preprocessing/_data.py", line 454, in fit
+    return self.partial_fit(X, y)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/base.py", line 1365, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/preprocessing/_data.py", line 494, in partial_fit
+    X = validate_data(
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/utils/validation.py", line 2954, in validate_data
+    out = check_array(X, input_name="X", **check_params)
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/utils/validation.py", line 1105, in check_array
+    _assert_all_finite(
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/utils/validation.py", line 120, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/sklearn/utils/validation.py", line 169, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains infinity or a value too large for dtype('float64').
