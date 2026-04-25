@@ -10,91 +10,84 @@ permissions:
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Repoyu indir
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: 🐍 Python kurulumu
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      
+
       - name: 📦 Kütüphaneleri yükle
         run: |
           pip install --upgrade pip
-          pip install yfinance pandas numpy openpyxl scikit-learn tensorflow
-      
+          pip install yfinance pandas numpy openpyxl scikit-learn tensorflow==2.15.0
+
       - name: 🔍 Dizin kontrolü
         run: |
           echo "=== bot dizini içeriği ==="
           ls -la bot/ || echo "bot dizini yok"
-      
-      - name: 🤖 Botu çalıştır (debug mod)
+
+      - name: 🤖 Botu çalıştır
         run: |
           cd bot
           python -u main.py 2>&1 | tee bot.log
-      
+
       - name: 📊 Çıktıları kontrol et
         run: |
           echo "=== bot/veri klasörü ==="
           ls -la bot/veri/ 2>/dev/null || echo "bot/veri yok"
           echo "=== ana dizinde veri klasörü ==="
           ls -la veri/ 2>/dev/null || echo "ana veri yok"
-          echo "=== bot klasöründeki xlsx dosyaları ==="
-          ls -la bot/*.xlsx 2>/dev/null || echo "xlsx yok"
-      
-      - name: 💾 Çıktıları repoya kaydet (PUSH HATASIZ)
+
+      - name: 💾 Çıktıları repoya kaydet
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
-          
+
           mkdir -p "veri/${TIMESTAMP}"
           mkdir -p "veri/latest"
-          
-          # Çıktıları kopyala
+
           if [ -d "bot/veri" ] && [ "$(ls -A bot/veri)" ]; then
             echo "📁 bot/veri/ bulundu, kopyalanıyor..."
             cp -r bot/veri/* "veri/${TIMESTAMP}/" 2>/dev/null || true
             cp -r bot/veri/* "veri/latest/" 2>/dev/null || true
           fi
-          
+
           if [ -f "bot/bot.log" ]; then
             cp bot/bot.log "veri/${TIMESTAMP}/" 2>/dev/null || true
           fi
-          
-          # 🔧 KRİTİK: Önce remote değişiklikleri çek
+
           echo "📥 Remote değişiklikler çekiliyor..."
           git pull origin main --no-rebase || echo "Pull hatası ama devam"
-          
+
           git add veri/ --force
-          
+
           if git diff --staged --quiet; then
             echo "⚠️ Değişiklik yok, commit atlanıyor"
           else
             git commit -m "🤖 LSTM tahminleri - ${TIMESTAMP}"
-            # 🔧 KRİTİK: Push öncesi rebase
             git pull origin main --rebase || true
             git push origin main
             echo "✅ Repo güncellendi"
           fi
-      
+
       - name: 📤 Artifact olarak yükle
         uses: actions/upload-artifact@v4
         with:
           name: trend-bot-cikti-${{ github.run_id }}
           path: |
             bot/veri/
-            bot/tahminler.xlsx
-            bot/tahminler.json
             veri/
             bot/bot.log
           retention-days: 30
-      
+
       - name: 📊 Sonuç özeti
         run: |
           echo ""
