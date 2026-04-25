@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
 import warnings
 warnings.filterwarnings('ignore')
@@ -9,11 +9,13 @@ warnings.filterwarnings('ignore')
 SEQUENCE_LENGTH = 168  # 1 hafta
 
 def create_lstm_model(input_shape):
-    """LSTM modeli oluştur"""
+    """LSTM modeli oluştur - Gelişmiş versiyon"""
     model = Sequential([
-        LSTM(128, return_sequences=True, input_shape=input_shape),
+        Bidirectional(LSTM(128, return_sequences=True), input_shape=input_shape),
         Dropout(0.2),
-        LSTM(64, return_sequences=False),
+        LSTM(64, return_sequences=True),
+        Dropout(0.2),
+        LSTM(32, return_sequences=False),
         Dropout(0.2),
         Dense(32, activation='relu'),
         Dense(16, activation='relu'),
@@ -44,9 +46,25 @@ def prepare_sequences(df, features, target_hour):
     return np.array(X), np.array(y), (scaler_X, scaler_y)
 
 def train_and_predict(df, target_hour):
-    """Model eğit ve tahmin yap"""
-    features = ['close', 'volume', 'rsi_14', 'macd', 'atr_14', 
-                'hourly_return', 'bb_position', 'momentum_12']
+    """Model eğit ve tahmin yap - YENİ ÖZELLİKLER EKLENDİ"""
+    
+    # 🆕 GELİŞMİŞ ÖZELLİKLER (15 özellik)
+    features = [
+        # Temel fiyat ve hacim
+        'close', 'volume',
+        
+        # Trend göstergeleri
+        'sma_24', 'sma_168',
+        
+        # Momentum göstergeleri
+        'rsi_14', 'macd', 'macd_signal',
+        
+        # Volatilite
+        'atr_14', 'bb_position',
+        
+        # Getiri ve hacim değişimi
+        'hourly_return', 'volume_change', 'momentum_12'
+    ]
     
     X, y, scalers = prepare_sequences(df, features, target_hour)
     
